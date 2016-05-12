@@ -11,9 +11,73 @@
 		ctx = canvas.getContext('2d');
 	canvas.height = window.innerHeight;
 	canvas.width = window.innerWidth;
-	ctx.fillStyle = 'black';
-	ctx.fillRect(0,0,150,75);
+	
 
+	// ctx.beginPath();
+	// ctx.arc(200, 200, 60, 0, 2 * Math.PI, false);
+	// ctx.fillStyle = '#ff80bf';
+	// ctx.fill();
+	// ctx.lineWidth = 5;
+	// ctx.strokeStyle = '#ff4da6';
+	// ctx.stroke();
+
+	var cx=150;
+	var cy=150;
+	var radius =60;
+	var amp = 1;
+	var sineCount = Math.random() + 12;
+
+	function draw() {
+		ctx.beginPath();
+		for(var i=10;i<370;i++){
+		  var angle = i*Math.PI/180;
+		  var pt = sineCircleXYatAngle(cx,cy,radius,amp,angle,sineCount);
+		  ctx.lineTo(pt.x,pt.y);
+		}
+		ctx.fillStyle = '#ff80bf';
+		ctx.fill();
+		ctx.lineWidth = 5;
+		ctx.strokeStyle = '#ff4da6';
+		ctx.closePath();
+		ctx.stroke();
+	}
+
+	function clear() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	}
+
+	function sineCircleXYatAngle(cx,cy,radius,amplitude,angle,sineCount){
+	  var x = cx+(radius+amplitude*Math.sin(sineCount*angle))*Math.cos(angle);
+	  var y = cy+(radius+amplitude*Math.sin(sineCount*angle))*Math.sin(angle);
+	  return({x:x,y:y});
+	}
+
+
+
+	setInterval(() => {
+		clear();
+		sineCount = (Math.random() * 5) + 2;
+		draw();
+	}, 1000/15)
+
+	document.addEventListener('mousemove', e => {
+		var x = e.clientX
+			, y = e.clientY;
+
+		// console.log(x)
+		// console.log(y)
+
+		var opp, adj, hyp, theta;
+
+		opp = y - cy;
+		adj = x - cx;
+		hyp = Math.sqrt(Math.pow(adj, 2) + Math.pow(adj, 2));
+		theta = Math.asin(opp/hyp);
+
+		console.log({opp:opp, adj: adj, hyp: hyp, theta: theta, ans: opp/hyp});
+	
+		// console.log(theta);
+	})
 </script>
 <style type="text/css">
 	* {
