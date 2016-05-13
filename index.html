@@ -8,32 +8,33 @@
 </body>
 <script type="text/javascript">
 	var canvas = document.getElementById('canvas'),
-		ctx = canvas.getContext('2d');
+		ctx = canvas.getContext('2d'),
+		cx = cy = 150,
+		speed = 10,
+		mX = mY = theta = 0,
+		food = [];
+
 	canvas.height = window.innerHeight;
 	canvas.width = window.innerWidth;
 	
-
-	// ctx.beginPath();
-	// ctx.arc(200, 200, 60, 0, 2 * Math.PI, false);
-	// ctx.fillStyle = '#ff80bf';
-	// ctx.fill();
-	// ctx.lineWidth = 5;
-	// ctx.strokeStyle = '#ff4da6';
-	// ctx.stroke();
-
-	var cx=150;
-	var cy=150;
-	var radius =60;
-	var amp = 1;
-	var sineCount = Math.random() + 12;
+	spawnFood();
 
 	function draw() {
+
+		var radius = 60,
+			amp = 1,
+			sineCount = Math.floor(Math.random() * 5) + 2,
+			start = Math.floor(Math.random() * 100),
+			stop = start + 360;
+
 		ctx.beginPath();
-		for(var i=10;i<370;i++){
-		  var angle = i*Math.PI/180;
-		  var pt = sineCircleXYatAngle(cx,cy,radius,amp,angle,sineCount);
-		  ctx.lineTo(pt.x,pt.y);
+
+		for (var i = start; i < stop; i++){
+		  var angle = i * Math.PI / 180,
+		  	pt = sineCircleXYatAngle(cx, cy, radius, amp, angle, sineCount);
+		  ctx.lineTo(pt.x, pt.y);
 		}
+
 		ctx.fillStyle = '#ff80bf';
 		ctx.fill();
 		ctx.lineWidth = 5;
@@ -42,41 +43,98 @@
 		ctx.stroke();
 	}
 
-	function clear() {
+	function clearMap() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 	}
 
-	function sineCircleXYatAngle(cx,cy,radius,amplitude,angle,sineCount){
-	  var x = cx+(radius+amplitude*Math.sin(sineCount*angle))*Math.cos(angle);
-	  var y = cy+(radius+amplitude*Math.sin(sineCount*angle))*Math.sin(angle);
+	function sineCircleXYatAngle(cx, cy, radius, amplitude, angle, sineCount){
+	  var x = cx + (radius + amplitude * Math.sin(sineCount * angle)) * Math.cos(angle),
+	  	y = cy + (radius + amplitude * Math.sin(sineCount * angle)) * Math.sin(angle);
 	  return({x:x,y:y});
 	}
 
+	function update() {
+		var opp, adj;
 
+		if (mX > cx) { //if in quadrant 1 or 4
+			opp = mY - cy;
+			adj = mX - cx;
+			theta = Math.atan(opp/adj);
+			
+		} else { //if in quadrant 2 or 3
+			opp = mY - cy;
+			adj = mX - cx;
+			theta = Math.atan(opp/adj) + Math.PI;
+		}
+	}
+
+	function move() {
+		var deltaY = speed * Math.sin(theta);
+		var deltaX = speed * Math.cos(theta);
+		
+		cx += deltaX;
+		cy += deltaY;
+	}
+
+	function spawnFood() {
+		var xPos = Math.random() * window.innerWidth,
+			yPos = Math.random() * window.innerHeight,
+			color = randomColor();
+
+		food.push({
+			xPos: xPos,
+			yPos: yPos,
+			color, color
+		})
+
+		drawFood(xPos, yPos, color);
+	}
+
+	function drawFood(xPos, yPos, color) {
+
+		ctx.fillStyle = color;
+		ctx.beginPath();
+		ctx.arc(xPos, yPos, 10, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.fill();
+	}
+
+	function drawAllFood() {
+
+		var radDist = 70;
+
+		for (var i = 0; i < food.length; i++) {
+			var actualDist = Math.sqrt(Math.pow(food[i].xPos - cx, 2) + Math.pow(food[i].yPos - cy, 2));
+
+			if (actualDist > radDist) {
+				drawFood(food[i].xPos, food[i].yPos, food[i].color);
+			} else {
+				food.splice(i, 1);
+			}
+		}
+	}
+
+	function randomColor() {
+		return '#' + Math.floor(Math.random() * 16777215).toString(16);
+	}
 
 	setInterval(() => {
-		clear();
-		sineCount = (Math.random() * 5) + 2;
+		update();
+		if ((Math.abs(mX - cx) > 5 || (Math.abs(mY - cy) > 5))) move();
+		clearMap();
+		drawAllFood();
 		draw();
-	}, 1000/15)
+	}, 1000 / 15)
 
-	document.addEventListener('mousemove', e => {
-		var x = e.clientX
-			, y = e.clientY;
+	setInterval(() => {
+		spawnFood();
+	}, 1000)
 
-		// console.log(x)
-		// console.log(y)
 
-		var opp, adj, hyp, theta;
 
-		opp = y - cy;
-		adj = x - cx;
-		hyp = Math.sqrt(Math.pow(adj, 2) + Math.pow(adj, 2));
-		theta = Math.asin(opp/hyp);
-
-		console.log({opp:opp, adj: adj, hyp: hyp, theta: theta, ans: opp/hyp});
-	
-		// console.log(theta);
+	document.addEventListener('mousemove', function(e) {
+		mX = e.clientX;
+		mY = e.clientY;
 	})
 </script>
 <style type="text/css">
