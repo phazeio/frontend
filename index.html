@@ -13,6 +13,8 @@
 		speed = 10,
 		mX = mY = theta = 0,
 		food = [],
+		foodRadius = 10,
+		lineWidth = 5,
 		radius = 60;
 
 	canvas.height = window.innerHeight;
@@ -37,7 +39,7 @@
 
 		ctx.fillStyle = '#ff80bf';
 		ctx.fill();
-		ctx.lineWidth = 5;
+		ctx.lineWidth = lineWidth;
 		ctx.strokeStyle = '#ff4da6';
 		ctx.closePath();
 		ctx.stroke();
@@ -94,14 +96,14 @@
 
 		ctx.fillStyle = color;
 		ctx.beginPath();
-		ctx.arc(xPos, yPos, 10, 0, 2 * Math.PI);
+		ctx.arc(xPos, yPos, foodRadius, 0, 2 * Math.PI);
 		ctx.closePath();
 		ctx.fill();
 	}
 
 	function drawAllFood() {
 
-		var radDist = radius + 10;
+		var radDist = radius + foodRadius;
 
 		for (var i = 0; i < food.length; i++) {
 			var actualDist = Math.sqrt(Math.pow(food[i].xPos - cx, 2) + Math.pow(food[i].yPos - cy, 2));
@@ -110,9 +112,16 @@
 				drawFood(food[i].xPos, food[i].yPos, food[i].color);
 			} else {
 				food.splice(i, 1);
-				radius++;
+				increaseRadius();
 			}
 		}
+	}
+
+	function increaseRadius() {
+		var areaOfFood = Math.pow(foodRadius, 2) * Math.PI,
+			areaOfCharacter = Math.pow(radius, 2) * Math.PI,
+			newArea = areaOfCharacter + areaOfFood;
+		radius = Math.sqrt(newArea / Math.PI);
 	}
 
 	function randomColor() {
@@ -124,7 +133,7 @@
 	setInterval(() => {
 		count++;
 		update();
-		if ((Math.abs(mX - cx) > 5 || (Math.abs(mY - cy) > 5))) move(); //done move is the mouse is basically centered on the character
+		if ((Math.abs(mX - cx) > 5 || (Math.abs(mY - cy) > 5))) move(); //don't move if the mouse is basically centered on the character
 		clearMap();
 		drawAllFood();
 		if (count >= 6) {
