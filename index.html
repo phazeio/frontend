@@ -23,7 +23,6 @@
 	spawnFood();
 
 	function drawCharacter() {
-
 		var amp = 1,
 			sineCount = Math.floor(Math.random() * 5) + 2,
 			start = Math.floor(Math.random() * 100),
@@ -31,10 +30,10 @@
 
 		ctx.beginPath();
 
-		for (var i = start; i < stop; i++){
-		  var angle = i * Math.PI / 180,
-		  	pt = sineCircleXYatAngle(cx, cy, radius, amp, angle, sineCount);
-		  ctx.lineTo(pt.x, pt.y);
+		for (var i = start; i < stop; i++) {
+			var angle = i * Math.PI / 180,
+		  		pt = sineCircleXYatAngle(cx, cy, radius, amp, angle, sineCount);
+		  	ctx.lineTo(pt.x, pt.y);
 		}
 
 		ctx.fillStyle = '#ff80bf';
@@ -50,32 +49,20 @@
 	}
 
 	function sineCircleXYatAngle(cx, cy, radius, amplitude, angle, sineCount){
-	  var x = cx + (radius + amplitude * Math.sin(sineCount * angle)) * Math.cos(angle),
-	  	y = cy + (radius + amplitude * Math.sin(sineCount * angle)) * Math.sin(angle);
-	  return({x:x,y:y});
+		var x = cx + (radius + amplitude * Math.sin(sineCount * angle)) * Math.cos(angle),
+			y = cy + (radius + amplitude * Math.sin(sineCount * angle)) * Math.sin(angle);
+	  	return({x:x,y:y});
 	}
 
 	function update() {
-		var opp, adj;
-
-		if (mX > cx) { //if in quadrant 1 or 4
-			opp = mY - cy;
+		var opp = mY - cy,
 			adj = mX - cx;
-			theta = Math.atan(opp/adj);
-			
-		} else { //if in quadrant 2 or 3
-			opp = mY - cy;
-			adj = mX - cx;
-			theta = Math.atan(opp/adj) + Math.PI;
-		}
+		theta = Math.atan(opp/adj) + (mX <= cx ? Math.PI : 0); //theta depends on quadrant
 	}
 
 	function move() {
-		var deltaY = speed * Math.sin(theta);
-		var deltaX = speed * Math.cos(theta);
-		
-		cx += deltaX;
-		cy += deltaY;
+		cy += speed * Math.sin(theta);
+		cx += speed * Math.cos(theta);
 	}
 
 	function spawnFood() {
@@ -93,7 +80,6 @@
 	}
 
 	function drawFood(xPos, yPos, color) {
-
 		ctx.fillStyle = color;
 		ctx.beginPath();
 		ctx.arc(xPos, yPos, foodRadius, 0, 2 * Math.PI);
@@ -102,7 +88,6 @@
 	}
 
 	function drawAllFood() {
-
 		var radDist = radius + foodRadius;
 
 		for (var i = 0; i < food.length; i++) {
@@ -136,10 +121,12 @@
 		if ((Math.abs(mX - cx) > 5 || (Math.abs(mY - cy) > 5))) move(); //don't move if the mouse is basically centered on the character
 		clearMap();
 		drawAllFood();
+
 		if (count >= 6) {
 			count = 0;
 			spawnFood();
 		}
+
 		drawCharacter();
 	}, 1000 / 15)
 
