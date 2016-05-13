@@ -12,17 +12,17 @@
 		cx = cy = 150,
 		speed = 10,
 		mX = mY = theta = 0,
-		food = [];
+		food = [],
+		radius = 60;
 
 	canvas.height = window.innerHeight;
 	canvas.width = window.innerWidth;
 	
 	spawnFood();
 
-	function draw() {
+	function drawCharacter() {
 
-		var radius = 60,
-			amp = 1,
+		var amp = 1,
 			sineCount = Math.floor(Math.random() * 5) + 2,
 			start = Math.floor(Math.random() * 100),
 			stop = start + 360;
@@ -101,7 +101,7 @@
 
 	function drawAllFood() {
 
-		var radDist = 70;
+		var radDist = radius + 10;
 
 		for (var i = 0; i < food.length; i++) {
 			var actualDist = Math.sqrt(Math.pow(food[i].xPos - cx, 2) + Math.pow(food[i].yPos - cy, 2));
@@ -110,6 +110,7 @@
 				drawFood(food[i].xPos, food[i].yPos, food[i].color);
 			} else {
 				food.splice(i, 1);
+				radius++;
 			}
 		}
 	}
@@ -118,19 +119,20 @@
 		return '#' + Math.floor(Math.random() * 16777215).toString(16);
 	}
 
+	var count = 0;
+
 	setInterval(() => {
+		count++;
 		update();
-		if ((Math.abs(mX - cx) > 5 || (Math.abs(mY - cy) > 5))) move();
+		if ((Math.abs(mX - cx) > 5 || (Math.abs(mY - cy) > 5))) move(); //done move is the mouse is basically centered on the character
 		clearMap();
 		drawAllFood();
-		draw();
+		if (count >= 6) {
+			count = 0;
+			spawnFood();
+		}
+		drawCharacter();
 	}, 1000 / 15)
-
-	setInterval(() => {
-		spawnFood();
-	}, 1000)
-
-
 
 	document.addEventListener('mousemove', function(e) {
 		mX = e.clientX;
