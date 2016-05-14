@@ -19,12 +19,14 @@
 	var canvas = document.getElementById('canvas')
 		, ctx = canvas.getContext('2d')
 		, SPEED = 3
-		, mX = mY = theta = 0
+		, theta = 0
 		, food = []
-		, foodRadius = 10
+		, foodRadius = 8
 		, lineWidth = 5
-		, radius = 30
-		, score = 0
+		, mouse = {
+			x: 0,
+			y: 0
+		}
 		, p = new Player();
 
 	canvas.height = window.innerHeight;
@@ -49,8 +51,12 @@
 	* Player Class
 	*/
 	function Player() {
+		this.food = [];
+		this.color = '#ff80bf';
 		this.x = canvas.width / 2;
 		this.y = canvas.height / 2;
+
+		this.initialRadius = this.radius = 30;
 
 		/*
 		* @setter set x
@@ -74,9 +80,7 @@
 		* update angle
 		*/
 		this.update = () => {
-			var opp = mY - this.y,
-				adj = mX - this.x;
-			theta = Math.atan(opp/adj) + (mX <= this.x ? Math.PI : 0); //theta depends on quadrant
+			theta = angleBetween(this, mouse);
 		}
 
 		this.draw = () => {
@@ -89,16 +93,30 @@
 
 			for (var i = start; i < stop; i++) {
 				var angle = i * Math.PI / 180,
-			  		pt = sineCircleXYatAngle(this.x, this.y, radius + score, amp, angle, sineCount);
+			  		pt = sineCircleXYatAngle(this.x, this.y, this.radius, amp, angle, sineCount);
 			  	ctx.lineTo(pt.x, pt.y);
 			}
 
-			ctx.fillStyle = '#ff80bf';
+			ctx.fillStyle = this.color;
 			ctx.fill();
 			ctx.lineWidth = lineWidth;
 			ctx.strokeStyle = '#ff4da6';
 			ctx.closePath();
 			ctx.stroke();
+		}
+
+		this.eat = function() {
+			var areaOfFood = Math.pow(foodRadius, 2) * Math.PI,
+				areaOfCharacter = Math.pow(this.radius, 2) * Math.PI,
+ 				newArea = areaOfCharacter + areaOfFood;
+ 			this.radius = Math.sqrt(newArea / Math.PI);
+		}
+
+		this.lose = function() {
+			var areaOfFood = Math.pow(foodRadius, 2) * Math.PI,
+				areaOfCharacter = Math.pow(this.radius, 2) * Math.PI,
+ 				newArea = areaOfCharacter - areaOfFood;
+ 			this.radius = Math.sqrt(newArea / Math.PI);
 		}
 	}
 
@@ -111,7 +129,8 @@
 		this.x = Math.random() * window.innerWidth;
 		this.y = Math.random() * window.innerHeight;
 		this.color = randomColor();
-		this.radius = foodRadius;
+		this.radius = foodRadius * 0.2;
+		this.chained = false;
 
 		// console.log(h2r(this.color));
 
@@ -128,7 +147,7 @@
 
 			ctx.fillStyle = this.color;
 			ctx.beginPath();
-			ctx.arc(this.x, this.y, this.radius - 2 + (Math.random() * 1), 0, 2 * Math.PI);
+			ctx.arc(this.x, this.y, this.radius + (Math.random() * 1), 0, 2 * Math.PI);
 			ctx.closePath();
 			ctx.fill();
 		}
@@ -137,14 +156,9 @@
 		* checks if food is colliding w/ 
 		* @returns boolean
 		*/
-		this.checkCollision = function() {
-			var radDist = radius + score + this.radius - 2
-				, actualDist = Math.sqrt(Math.pow(this.x - p.x, 2) + Math.pow(this.y - p.y, 2));
 
-			if (actualDist > radDist)
-				return false
-			else
-				return true
+		this.isEaten = function() {
+			return areOverlapping(this, p, 2);
 		}
 
 		/*
@@ -153,26 +167,79 @@
 		* make the food smaller as it moves towards the player 
 		* do the fancy stuff w/ the sinusoid at the right position to make the collision look pretty
 		*/
-		this.checkForce = function() {
+		this.checkForce = function(o) {
+			var dist = getDistance(o, this);
+			var distThreshold = 26;
 
+			// if (dist < distThreshold) {
+			// 	var attractionStrength = (distThreshold + 1 - dist) / 3;
+
+			// 	var angle = angleBetween(this, p);
+			// 	this.y += attractionStrength * Math.sin(angle);
+			// 	this.x += attractionStrength * Math.cos(angle);
+
+			// 	if (this.radius - (0.25 * attractionStrength) < 0) 
+			// 		this.radius = 0;
+			// 	else
+			// 		this.radius -= (0.25 * attractionStrength);
+			// }
+
+			if (this.chained) {
+				var angle = angleBetween(this, o);
+				this.y -= (16 - dist) * Math.sin(angle);
+				this.x -= (16 - dist) * Math.cos(angle);
+				return;
+			}
+
+
+
+			if (dist < 20) {
+				var angle = angleBetween(this, o);
+				this.y -= (16 - dist) * Math.sin(angle);
+				this.x -= (16 - dist) * Math.cos(angle);
+				// this.radius = (this.radius - 0.5) < 0.1 ? 0.1 : (this.radius - 0.5);
+			}
+
+			if (dist < 15 && !this.chained) { //chain chained food
+				p.food.push(this);
+				console.log("chained: " + p.food.length);
+				this.chained = true;
+				this.radius = foodRadius * 0.2;
+				this.color = p.color;
+			}
+
+			//use the above statement to chain the food, and change the attraction strenght to
+			
 		}
+
+
 	}
 
-	function drawAllFood() {
-		for(var i = 0; i < food.length; i++)
-			if(food[i].checkCollision()) {
-				food.splice(i, 1);
-				i--;
-				score++;
-			} else
-				food[i].draw();
+
+
+
+/*
+*static object functions
+*/
+
+
+
+
+
+
+
+	/*
+	* returns distance between two objects
+	*/
+	function getDistance(o1, o2) {
+		return Math.sqrt(Math.pow((o1.x - o2.x), 2) + Math.pow((o1.y - o2.y), 2)) - (o2.radius + o1.radius);
 	}
 
-	function increaseRadius() {
-		var areaOfFood = Math.pow(foodRadius, 2) * Math.PI,
-			areaOfCharacter = Math.pow(radius, 2) * Math.PI,
-			newArea = areaOfCharacter + areaOfFood;
-		radius = Math.sqrt(newArea / Math.PI);
+	/*
+	*returns true if two objects are overlapping
+	*/
+	function areOverlapping(o1, o2, skew) {
+		return getDistance(o1, o2) < (0 - (skew || 0 ));
 	}
 
 	function randomColor() {
@@ -188,18 +255,75 @@
 	    } : null;
 	}
 
+	/*
+	*returns angle, in radians, between start and end objects
+	*/	
+	function angleBetween(start, end) {
+		var opp = end.y - start.y,
+				adj = end.x - start.x;
+		return Math.atan(opp/adj) + (end.x <= start.x ? Math.PI : 0); //theta depends on quadrant
+	}
+
+
+
+
+
+
+
+
+/*
+*endstatic object functions
+*/
+
+
+
+
+
+	function drawAllFood() {
+		for (var i = 0; i < food.length; i++) {
+			// if (food[i].isEaten()) {
+
+			// 	//this check should never run if we're chaining
+			// 	throw new Error("FUCK");
+			// 	food.splice(i, 1);
+			// 	i--;
+			// 	p.eat();
+			// } else {
+				food[i].radius = food[i].radius < foodRadius ? food[i].radius + 0.3 : foodRadius;
+				if (!food[i].chained) food[i].checkForce(p);
+				food[i].draw();
+		}
+			// }
+
+		if (p.food[0]) 
+			p.food[0].checkForce(p);	
+		for (var i = 1; i < p.food.length; i++) 
+			if (p.food[i]) {
+				p.food[i].checkForce(p.food[i - 1]);
+			}
+		
+	}
+
+
+
+
 	var count = 0;
 
-	document.addEventListener('mousemove', function(e) {
-		mX = e.clientX;
-		mY = e.clientY;
-	})
+	window.onresize = function () {
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+	}
+
+	document.body.onmousemove = function(e) {
+		mouse.x = e.clientX;
+		mouse.y = e.clientY;
+	}
 
 	setInterval(() => {
-		document.getElementById('score').innerHTML = score;
+		document.getElementById('score').innerHTML = ~~p.radius - p.initialRadius;
 		count++;
 		p.update();
-		if ((Math.abs(mX - p.x) > 5 || (Math.abs(mY - p.y) > 5))) p.move(); //don't move if the mouse is basically centered on the character
+		if ((Math.abs(mouse.x - p.x) > 5 || (Math.abs(mouse.y - p.y) > 5))) p.move(); //don't move if the mouse is basically centered on the character
 		clearMap();
 		drawAllFood();
 
