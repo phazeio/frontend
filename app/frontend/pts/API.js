@@ -80,15 +80,27 @@ function h2r(h) {
 */
 function drawAllFood() {
 	for (var i = 0; i < Game.food.length; i++) {
-		Game.food[i].radius = Game.food[i].radius < FOOD_RADIUS ? Game.food[i].radius + 0.3 : FOOD_RADIUS;
-		if (!Game.food[i].chained) Game.food[i].checkForce(Game.Player);
+		Game.food[i].fadeIn(0.3);
+		Game.food[i].checkForce(Game.Player);
 		Game.food[i].draw();
-	}
-
-	if (Game.Player.food[0]) 
-		Game.Player.food[0].checkForce(Game.Player);	
-	for (var i = 1; i < Game.Player.food.length; i++) 
-		if (Game.Player.food[i]) {
-			Game.Player.food[i].checkForce(Game.Player.food[i - 1]);
+		if (Game.food[i].isEaten()) {
+			Game.Player.food.push(Game.food[i]);
+			Game.food[i].color = Game.Player.color;
+			Game.food[i].radius = FOOD_RADIUS * 0.2;
+			Game.food.splice(i, 1);
+			i--;
 		}
+
+
+		if (Game.Player.food[0]) {
+			Game.Player.food[0].followLeader(Game.Player);
+			Game.Player.food[0].fadeIn(0.1);
+			Game.Player.food[0].draw();
+			for (var i = 1; i < Game.Player.food.length; i++) {
+				Game.Player.food[i].followLeader(Game.Player.food[i - 1]);
+				Game.Player.food[i].fadeIn(0.1);
+				Game.Player.food[i].draw();	
+			}
+		}
+	}
 }

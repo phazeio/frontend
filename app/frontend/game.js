@@ -4,6 +4,7 @@ var Game = {}
 	, FOOD_RADIUS = 8
 	, LINE_WIDTH = 5
 	, PLAYER_RADIUS = 30
+	, SNAKINESS = 10
 	, CTX = null
 	, theta = 0
 	, mouse = {

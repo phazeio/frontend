@@ -16,6 +16,8 @@ function Player() {
 	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
 	this.food = [];
 
+	this.impactPoints = [];
+
 	/*
 	* move player
 	*/
@@ -86,34 +88,57 @@ function Food() {
 		ctx.fill();
 	}
 
+
+
+
+
+	this.isEaten = function() {
+		return areOverlapping(this, Game.Player, 2);
+	}
+
 	/*
-	* Check force of object on object
+	* check the distance between food and player
+	* if size / force of player object is strong enough, start moving food towards the object
+	* make the food smaller as it moves towards the player 
+	* do the fancy stuff w/ the sinusoid at the right position to make the collision look pretty
 	*/
 	this.checkForce = function(o) {
 		var dist = getDistance(o, this);
-		var distThreshold = 26;
+		var distThreshold = 20;
+		var padding = 5;
+		var attractionStrength = distThreshold - dist + padding;
 
-		if (this.chained) {
+		if (dist < distThreshold) {
 			var angle = angleBetween(this, o);
-			this.y -= (16 - dist) * Math.sin(angle);
-			this.x -= (16 - dist) * Math.cos(angle);
-			return;
+			this.y += attractionStrength * Math.sin(angle);
+			this.x += attractionStrength * Math.cos(angle);
+			this.radius = (this.radius - 0.25 * attractionStrength) < 0 ? 0.1 : (this.radius - 0.25 * attractionStrength);
+			Game.Player.impactPoints.push({
+				angle: (Math.PI - angle) * 180 / Math.PI,
+				distance: dist
+			})
 		}
 
-
-
-		if (dist < 20) {
-			var angle = angleBetween(this, o);
-			this.y -= (16 - dist) * Math.sin(angle);
-			this.x -= (16 - dist) * Math.cos(angle);
-			// this.radius = (this.radius - 0.5) < 0.1 ? 0.1 : (this.radius - 0.5);
-		}
-
-		if (dist < 15 && !this.chained) { //chain chained food
-			Game.Player.food.push(this);
-			this.chained = true;
-			this.radius = FOOD_RADIUS * 0.2;
-			this.color = Game.Player.color;
-		}
 	}
+
+	/* 
+	*follow leader when chained
+	*/
+	this.followLeader = function(o) {
+		var dist = getDistance(o, this);
+		var distThreshold = 20;
+		var attractionStrength = distThreshold - dist - SNAKINESS;
+
+		var angle = angleBetween(this, o);
+			this.y -= attractionStrength * Math.sin(angle);
+			this.x -= attractionStrength * Math.cos(angle);
+	}
+
+	/*
+	*slowly increase food radius
+	*/
+	this.fadeIn = function (rate) {
+		this.radius = this.radius < FOOD_RADIUS ? this.radius + rate : FOOD_RADIUS;
+	}
+
 }
