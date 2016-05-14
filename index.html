@@ -3,49 +3,36 @@
 	<title>Froglio</title>
 </head>
 <body>
-	<canvas id="canvas">
-	</canvas>
+	<canvas id="canvas"></canvas>
+	<div id="stats">
+		<div class="container">
+			<h3 style="text-align: center">Leaderboard</h3>
+			<div id="top">
+				<ul>
+					<li>1. Player <span id="score">0</span></li>
+				</ul>
+			</div>
+		</div>
+	</div>
 </body>
 <script type="text/javascript">
-	var canvas = document.getElementById('canvas'),
-		ctx = canvas.getContext('2d'),
-		cx = cy = 150,
-		speed = 10,
-		mX = mY = theta = 0,
-		food = [],
-		foodRadius = 10,
-		lineWidth = 5,
-		radius = 60;
+	var canvas = document.getElementById('canvas')
+		, ctx = canvas.getContext('2d')
+		, SPEED = 3
+		, mX = mY = theta = 0
+		, food = []
+		, foodRadius = 10
+		, lineWidth = 5
+		, radius = 30
+		, score = 0
+		, p = new Player();
 
 	canvas.height = window.innerHeight;
 	canvas.width = window.innerWidth;
-	
-	spawnFood();
-
-	function drawCharacter() {
-		var amp = 1,
-			sineCount = Math.floor(Math.random() * 5) + 2,
-			start = Math.floor(Math.random() * 100),
-			stop = start + 360;
-
-		ctx.beginPath();
-
-		for (var i = start; i < stop; i++) {
-			var angle = i * Math.PI / 180,
-		  		pt = sineCircleXYatAngle(cx, cy, radius, amp, angle, sineCount);
-		  	ctx.lineTo(pt.x, pt.y);
-		}
-
-		ctx.fillStyle = '#ff80bf';
-		ctx.fill();
-		ctx.lineWidth = lineWidth;
-		ctx.strokeStyle = '#ff4da6';
-		ctx.closePath();
-		ctx.stroke();
-	}
 
 	function clearMap() {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "grey";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 	}
 
 	function sineCircleXYatAngle(cx, cy, radius, amplitude, angle, sineCount){
@@ -54,52 +41,121 @@
 	  	return({x:x,y:y});
 	}
 
-	function update() {
-		var opp = mY - cy,
-			adj = mX - cx;
-		theta = Math.atan(opp/adj) + (mX <= cx ? Math.PI : 0); //theta depends on quadrant
-	}
-
-	function move() {
-		cy += speed * Math.sin(theta);
-		cx += speed * Math.cos(theta);
-	}
-
 	function spawnFood() {
-		var xPos = Math.random() * window.innerWidth,
-			yPos = Math.random() * window.innerHeight,
-			color = randomColor();
-
-		food.push({
-			xPos: xPos,
-			yPos: yPos,
-			color, color
-		})
-
-		drawFood(xPos, yPos, color);
+		food.push(new Food());
 	}
 
-	function drawFood(xPos, yPos, color) {
-		ctx.fillStyle = color;
-		ctx.beginPath();
-		ctx.arc(xPos, yPos, foodRadius, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.fill();
+	/*
+	* Player Class
+	*/
+	function Player() {
+		this.x = canvas.width / 2;
+		this.y = canvas.height / 2;
+
+		/*
+		* @setter set x
+		*/
+		this.setX = x => this.x = x;
+
+		/*
+		* @setter set y
+		*/
+		this.setY = y => this.y = y;
+
+		/*
+		* move player
+		*/
+		this.move = () => {
+			this.y += SPEED * Math.sin(theta);
+			this.x += SPEED * Math.cos(theta);
+		}
+
+		/* 
+		* update angle
+		*/
+		this.update = () => {
+			var opp = mY - this.y,
+				adj = mX - this.x;
+			theta = Math.atan(opp/adj) + (mX <= this.x ? Math.PI : 0); //theta depends on quadrant
+		}
+
+		this.draw = () => {
+			var amp = 1.2,
+				sineCount = Math.floor(Math.random() * 5) + 3,
+				start = Math.floor(Math.random() * 100),
+				stop = start + 360;
+
+			ctx.beginPath();
+
+			for (var i = start; i < stop; i++) {
+				var angle = i * Math.PI / 180,
+			  		pt = sineCircleXYatAngle(this.x, this.y, radius + score, amp, angle, sineCount);
+			  	ctx.lineTo(pt.x, pt.y);
+			}
+
+			ctx.fillStyle = '#ff80bf';
+			ctx.fill();
+			ctx.lineWidth = lineWidth;
+			ctx.strokeStyle = '#ff4da6';
+			ctx.closePath();
+			ctx.stroke();
+		}
+	}
+
+	/*
+	* Food Class
+	* @ creates food
+	* @ no parameteres
+	*/
+	function Food() {
+		this.xPos = Math.random() * window.innerWidth;
+		this.yPos = Math.random() * window.innerHeight;
+		this.color = randomColor();
+
+		console.log(this.color);
+		// console.log(h2r(this.color));
+
+		this.draw = function() {
+			var r = h2r(this.color);
+			if(r == null)
+				return;
+
+			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
+			ctx.beginPath();
+			ctx.arc(this.xPos, this.yPos, foodRadius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
+			ctx.closePath();
+			ctx.fill();
+
+			ctx.fillStyle = this.color;
+			ctx.beginPath();
+			ctx.arc(this.xPos, this.yPos, foodRadius - 2 + (Math.random() * 1), 0, 2 * Math.PI);
+			ctx.closePath();
+			ctx.fill();
+		}
+
+		/*
+		* checks if food is colliding w/ 
+		* @returns boolean
+		*/
+		this.checkCollision = function() {
+			var radDist = radius + score + foodRadius - 2
+				, actualDist = Math.sqrt(Math.pow(this.xPos - p.x, 2) + Math.pow(this.yPos - p.y, 2));
+
+			if (actualDist > radDist)
+				return false
+			else
+				return true
+		}
 	}
 
 	function drawAllFood() {
-		var radDist = radius + foodRadius;
-
-		for (var i = 0; i < food.length; i++) {
-			var actualDist = Math.sqrt(Math.pow(food[i].xPos - cx, 2) + Math.pow(food[i].yPos - cy, 2));
-
-			if (actualDist > radDist) {
-				drawFood(food[i].xPos, food[i].yPos, food[i].color);
-			} else {
+		for(var i = 0; i < food.length; i++)
+			if(food[i].checkCollision()) {
 				food.splice(i, 1);
-				increaseRadius();
-			}
-		}
+				i--;
+				score++;
+			} else
+				food[i].draw();
 	}
 
 	function increaseRadius() {
@@ -113,33 +169,76 @@
 		return '#' + Math.floor(Math.random() * 16777215).toString(16);
 	}
 
+	function h2r(h) {
+	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h);
+	    return result ? {
+	        r: parseInt(result[1], 16),
+	        g: parseInt(result[2], 16),
+	        b: parseInt(result[3], 16)
+	    } : null;
+	}
+
 	var count = 0;
-
-	setInterval(() => {
-		count++;
-		update();
-		if ((Math.abs(mX - cx) > 5 || (Math.abs(mY - cy) > 5))) move(); //don't move if the mouse is basically centered on the character
-		clearMap();
-		drawAllFood();
-
-		if (count >= 6) {
-			count = 0;
-			spawnFood();
-		}
-
-		drawCharacter();
-	}, 1000 / 15)
 
 	document.addEventListener('mousemove', function(e) {
 		mX = e.clientX;
 		mY = e.clientY;
 	})
+
+	setInterval(() => {
+		document.getElementById('score').innerHTML = score;
+		count++;
+		p.update();
+		if ((Math.abs(mX - p.x) > 5 || (Math.abs(mY - p.y) > 5))) p.move(); //don't move if the mouse is basically centered on the character
+		clearMap();
+		drawAllFood();
+
+		if (count >= 30) {
+			count = 0;
+			spawnFood();
+		}
+
+		p.draw();
+	}, 1000 / 60)
 </script>
 <style type="text/css">
 	* {
 		border: 0;
 		margin: 0;
 		padding: 0;
+		font-family: Helvetica;
+	}
+
+	#stats {
+		position: absolute;
+		right: 10;
+		top: 10;
+		z-index: 3000;
+		width: 200px;
+		background-color: white;
+		border-color: #fffff2;
+		border-radius: 2px;
+		opacity: 0.8;
+	}
+
+	#top {
+		margin-top: 10px;
+		/*opacity: 0.5;*/
+	}
+
+	#top ul {
+		margin-left: 0;
+		font-size: 12px;
+		text-align: center;
+	}
+
+	#top ul li {
+		list-style-type: none;
+	}
+
+	.container {
+		padding: 5px;
+		margin: 5px;
 	}
 </style>
 </html>
