@@ -108,11 +108,11 @@
 	* @ no parameteres
 	*/
 	function Food() {
-		this.xPos = Math.random() * window.innerWidth;
-		this.yPos = Math.random() * window.innerHeight;
+		this.x = Math.random() * window.innerWidth;
+		this.y = Math.random() * window.innerHeight;
 		this.color = randomColor();
+		this.radius = foodRadius;
 
-		console.log(this.color);
 		// console.log(h2r(this.color));
 
 		this.draw = function() {
@@ -122,13 +122,13 @@
 
 			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
 			ctx.beginPath();
-			ctx.arc(this.xPos, this.yPos, foodRadius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
+			ctx.arc(this.x, this.y, this.radius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
 			ctx.closePath();
 			ctx.fill();
 
 			ctx.fillStyle = this.color;
 			ctx.beginPath();
-			ctx.arc(this.xPos, this.yPos, foodRadius - 2 + (Math.random() * 1), 0, 2 * Math.PI);
+			ctx.arc(this.x, this.y, this.radius - 2 + (Math.random() * 1), 0, 2 * Math.PI);
 			ctx.closePath();
 			ctx.fill();
 		}
@@ -138,13 +138,23 @@
 		* @returns boolean
 		*/
 		this.checkCollision = function() {
-			var radDist = radius + score + foodRadius - 2
-				, actualDist = Math.sqrt(Math.pow(this.xPos - p.x, 2) + Math.pow(this.yPos - p.y, 2));
+			var radDist = radius + score + this.radius - 2
+				, actualDist = Math.sqrt(Math.pow(this.x - p.x, 2) + Math.pow(this.y - p.y, 2));
 
 			if (actualDist > radDist)
 				return false
 			else
 				return true
+		}
+
+		/*
+		* check the distance between food and player
+		* if size / force of player object is strong enough, start moving food towards the object
+		* make the food smaller as it moves towards the player 
+		* do the fancy stuff w/ the sinusoid at the right position to make the collision look pretty
+		*/
+		this.checkForce = function() {
+
 		}
 	}
 
