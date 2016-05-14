@@ -18,6 +18,8 @@ var express 		= require('express')
 	, redis 		= require('redis')
 	, http		 	= require('http').Server(app);
 
+app.use(express.static(__dirname + '/public'));
+
 var WebSocketServer = require('websocket').server;
  
 wsServer = new WebSocketServer({
