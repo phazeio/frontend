@@ -1,5 +1,5 @@
 var Game = {}
-	, SPEED = 3
+	, SPEED = 5
 	, MAP_SIZE = 4000
 	, FOOD_RADIUS = 8
 	, LINE_WIDTH = 5
@@ -33,18 +33,17 @@ document.body.onmousemove = function(e) {
 	mouse.y = e.clientY;
 }
 
+window.onresize = e => Game.View.resize();
 
 setInterval(() => {
 	Game.Player.update();
 	Game.Player.move();
 
-	Game.View.follow();
 	Game.View.draw();
 }, 1000 / 60)
 
 setInterval(() => {
 	Game.food.push(new Food());
-	console.log('pushed!')
 }, 1000)
 
 setInterval(() => {

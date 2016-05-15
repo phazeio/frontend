@@ -1,16 +1,16 @@
-var ws = new WebSocket('ws://localhost:80');
+var ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
 
 ws.onmessage = (o) => {
-	var data = JSON.parse(o);
+	console.log(o)
 
-	switch(data.id) {
-		case '0x01':
-			death(data);
-			break
-		case '0x02':
-			move(data);
-			break;
-	}
+	// switch(data.id) {
+	// 	case '0x01':
+	// 		death(data);
+	// 		break
+	// 	case '0x02':
+	// 		move(data);
+	// 		break;
+	// }
 }
 
 function death(data) {

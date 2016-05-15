@@ -15,13 +15,17 @@ function Entity(x, y, radius) {
 function Player() {
 	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
 	this.food = [];
+	// this.score = 0;
+	// this.speed = SPEED;
 
 	/*
 	* move player
 	*/
 	this.move = () => {
-		this.y += SPEED * Math.sin(theta);
-		this.x += SPEED * Math.cos(theta);
+		// if(this.y + SPEED * Math.sin(theta) > 0 && this.y + SPEED * Math.sin(theta) < Game.Map.height)
+			this.y += SPEED * Math.sin(theta);
+		// if(this.x + SPEED * Math.sin(theta) > 0 && this.x + SPEED * Math.sin(theta) < Game.Map.width)
+			this.x += SPEED * Math.cos(theta);
 	}
 
 	/* 
