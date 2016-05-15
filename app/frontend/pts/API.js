@@ -90,16 +90,16 @@ function drawAllFood() {
 			Game.food.splice(i, 1);
 			i--;
 		}
+	}
 
-		if (Game.Player.food[0]) {
-			Game.Player.food[0].followLeader(Game.Player);
-			Game.Player.food[0].fadeIn(0.1);
-			Game.Player.food[0].draw();
-			for (var j = 1; j < Game.Player.food.length; j++) {
-				Game.Player.food[j].followLeader(Game.Player.food[j - 1]);
-				Game.Player.food[j].fadeIn(0.1);
-				Game.Player.food[j].draw();	
-			}
+	if (Game.Player.food[0]) {
+		Game.Player.food[0].followLeader(Game.Player);
+		Game.Player.food[0].fadeIn(0.1);
+		Game.Player.food[0].draw();
+		for (var j = 1; j < Game.Player.food.length; j++) {
+			Game.Player.food[j].followLeader(Game.Player.food[j - 1]);
+			Game.Player.food[j].fadeIn(0.1);
+			Game.Player.food[j].draw();	
 		}
 	}
 }
