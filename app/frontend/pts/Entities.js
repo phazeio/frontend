@@ -16,8 +16,6 @@ function Player() {
 	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
 	this.food = [];
 
-	this.impactPoints = [];
-
 	/*
 	* move player
 	*/
@@ -65,7 +63,6 @@ function Food() {
 
 	this.color = randomColor();
 	this.radius = FOOD_RADIUS * 0.2;
-	this.chained = false;
 
 	this.draw = function() {
 		var r = h2r(this.color);
@@ -113,10 +110,6 @@ function Food() {
 			this.y += attractionStrength * Math.sin(angle);
 			this.x += attractionStrength * Math.cos(angle);
 			this.radius = (this.radius - 0.25 * attractionStrength) < 0 ? 0.1 : (this.radius - 0.25 * attractionStrength);
-			Game.Player.impactPoints.push({
-				angle: (Math.PI - angle) * 180 / Math.PI,
-				distance: dist
-			})
 		}
 
 	}

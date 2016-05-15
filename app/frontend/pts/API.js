@@ -91,15 +91,14 @@ function drawAllFood() {
 			i--;
 		}
 
-
 		if (Game.Player.food[0]) {
 			Game.Player.food[0].followLeader(Game.Player);
 			Game.Player.food[0].fadeIn(0.1);
 			Game.Player.food[0].draw();
-			for (var i = 1; i < Game.Player.food.length; i++) {
-				Game.Player.food[i].followLeader(Game.Player.food[i - 1]);
-				Game.Player.food[i].fadeIn(0.1);
-				Game.Player.food[i].draw();	
+			for (var j = 1; j < Game.Player.food.length; j++) {
+				Game.Player.food[j].followLeader(Game.Player.food[j - 1]);
+				Game.Player.food[j].fadeIn(0.1);
+				Game.Player.food[j].draw();	
 			}
 		}
 	}
