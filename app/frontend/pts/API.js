@@ -7,7 +7,7 @@ function crds2ctx(o) {
 	var x = Game.Player.x - o.x
 		, y = Game.Player.y - o.y;
 
-	return {x: Game.View.canvas.width / 2 - x, y: Game.View.canvas.height / 2 - y};
+	return {x: Game.View.width / 2 - x, y: Game.View.height / 2 - y};
 }
 
 /*
@@ -84,9 +84,16 @@ function drawAllFood() {
 		Game.food[i].checkForce(Game.Player);
 		Game.food[i].draw();
 		if (Game.food[i].isEaten()) {
-			Game.Player.food.push(Game.food[i]);
 			Game.food[i].color = Game.Player.color;
 			Game.food[i].radius = FOOD_RADIUS * 0.2;
+			Game.food[i].chained = true;
+
+			if(Game.Player.score === 0 || Game.Player.score % 5 === 0)
+				Game.Player.food.push(Game.food[i]);
+
+			SpermEvent.emit('player_eat_event', Game.Player);
+			Game.View.resize();
+			Game.Player.score++;
 			Game.food.splice(i, 1);
 			i--;
 		}

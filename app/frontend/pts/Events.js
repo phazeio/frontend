@@ -1,22 +1,29 @@
-var ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
+function EventEmitter() {
+	this.listeners = {};
 
-ws.onmessage = (o) => {
-	console.log(o)
+	this.on = (eventName, callback) => {
+		if (this.listeners[eventName])
+			this.listeners[eventName].push(callback);
+		else
+			this.listeners[eventName] = [callback];
+	}
 
-	// switch(data.id) {
-	// 	case '0x01':
-	// 		death(data);
-	// 		break
-	// 	case '0x02':
-	// 		move(data);
-	// 		break;
-	// }
+	this.emit = (eventName, data) => {
+		if (this.listeners[eventName])
+			this.listeners[eventName].forEach(h => h(data));
+	}
 }
 
-function death(data) {
+var SpermEvent = new EventEmitter();
 
-}
+/*
+* [0] player_move_event - player moved
+* [1] player_eat_event - player eats food
+* [2] player_death_event - player died
+* [3] idk
+*
+*/
 
-function move(data) {
-	
-}
+SpermEvent.on('player_eat_event', p => {
+	// Game.View.resize();
+})

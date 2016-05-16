@@ -49,9 +49,7 @@ wsServer.on('request', function(request) {
     console.log((new Date()) + ' Connection accepted.');
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
-            console.log('Received Message: ' + message.utf8Data);
-            connection.sendUTF(message.utf8Data);
-            connection.sendUTF('swag');
+            console.log(JSON.stringify(message.utf8Data));
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');

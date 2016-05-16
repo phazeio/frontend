@@ -6,7 +6,7 @@ var gulp       = require('gulp')
   , babel      = require('gulp-babel');
 
 gulp.task('concat', function() {
-  return gulp.src(['./app/fontend/game.js', './app/frontend/pts/*.js'])
+  return gulp.src(['./app/fontend/Sperm.js', './app/frontend/pts/*.js'])
     .pipe(concat('sperm.con.js'))
     .pipe(gulp.dest('./public/js'));
 });
@@ -19,7 +19,7 @@ gulp.task('compress', function() {
 });
 
 gulp.task('build', function() {
-  return gulp.src(['./app/frontend/game.js', './app/frontend/pts/*.js'])
+  return gulp.src(['./app/frontend/Sperm.js', './app/frontend/pts/*.js'])
     .pipe(concat('sperm.con.js'))
     .pipe(rename('sperm.min.js'))
     .pipe(babel({presets: ['es2015']}))
@@ -27,12 +27,8 @@ gulp.task('build', function() {
     .pipe(gulp.dest('./public/js'));
 })
 
-gulp.task('stream', function () {
-    return gulp.src(['./app/frontend/game.js', './app/frontend/pts/*.js'])
-    .pipe(watch(['./src/game.js', './src/pts/*.js']))
-    .pipe(concat('sperm.con.js'))
-    .pipe(rename('sperm.min.js'))
-    .pipe(babel({presets: ['es2015']}))
-    .pipe(uglify())
-    .pipe(gulp.dest('./public/js'));
+gulp.task('watch', function () {
+    gulp.watch(['./app/frontend/Sperm.js', './app/frontend/pts/*.js'], function () {
+        gulp.run('build');
+    });
 });
