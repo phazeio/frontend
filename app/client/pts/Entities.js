@@ -2,16 +2,27 @@
 /**
 * Entity Class
 */
-function Entity(x, y, radius) {
+function Entity(x, y, radius, _id) {
 	this.x 		= x;
 	this.y 		= y;
 	this.color 	= randomColor();
 	this.radius = radius;
+	this._id  	= null;
 
-	// this.getRadius = () => this.radius + Game.Zoom.getZoom();
+	// set id
+	this.set_id = (_id) => this._id = _id;
+
+	this.setX = x => this.x = x;
+	this.setY = y => this.y = y;
+	this.setColor = c => this.color = c;
+	this.setRadius = r => this.radius = r;
+
+	this.getX = () => this.x;
+	this.getY = () => this.y;
+	this.getColor = () => this.color;
+	this.getRadius = () => this.radius;
 }
 
-// https://cdn.thinglink.me/api/image/727110550026190849/1240/10/scaletowidth
 var doge = document.createElement('img');
 doge.src = 'https://cdn.thinglink.me/api/image/727110550026190849/1240/10/scaletowidth';
 
@@ -26,7 +37,7 @@ function Player(username) {
 	this.username = username;
 	this.speed = SPEED;
 
-	this.getScoreDecrease = () => 0.02 * this.score;
+	this.getScoreDecrease = () => 0.004 * this.score;
 
 	/*
 	* move player
@@ -38,7 +49,7 @@ function Player(username) {
 			this.x += this.speed * Math.cos(theta);
 
 			// EMIT MOVE EVENT
-			SpermEvent.emit('player_move_event', this);
+			SpermEvent.emit('player_move_event', {player: this});
 	}
 
 	/* 

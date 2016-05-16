@@ -1,4 +1,5 @@
-var music = new Audio('/audio/sperm.mp3');
+var music = new Audio('/audio/sperm.mp3')
+	, pop = new Audio('/audio/pop.mp3');
 
 window.onload = function() {
 	$('#overlay').fadeIn(1000);

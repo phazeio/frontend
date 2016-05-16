@@ -91,8 +91,8 @@ function drawAllFood() {
 			if(Game.Player.score === 0 || Game.Player.score % 5 === 0)
 				Game.Player.food.push(Game.food[i]);
 
-			SpermEvent.emit('player_eat_event', Game.Player);
-			Game.View.resize();
+			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.Food});
+			Game.Zoom.scale();
 			Game.Player.score++;
 			Game.food.splice(i, 1);
 			i--;
@@ -109,4 +109,15 @@ function drawAllFood() {
 			Game.Player.food[j].draw();	
 		}
 	}
+}
+
+try {
+	module.exports.angleBetween = angleBetween;
+	module.exports.sineCircleXYatAngle = sineCircleXYatAngle;
+	module.exports.getDistance = getDistance;
+	module.exports.areOverlapping = areOverlapping;
+	module.exports.randomColor = randomColor;
+	module.exports.h2r = h2r;
+} catch(e) {
+	console.log('Running in browser');
 }

@@ -24,6 +24,11 @@ var SpermEvent = new EventEmitter();
 *
 */
 
-SpermEvent.on('player_eat_event', p => {
-	// Game.View.resize();
+SpermEvent.on('player_eat_event', e => {
+	pop.play();
+})
+
+SpermEvent.on('player_move_event', e => {
+	$('#player_x').text(~~e.player.x);
+	$('#player_y').text(~~e.player.y);
 })

@@ -1,10 +1,10 @@
 <html>
 <head>
 	<title>Sperm.IO</title>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/fonts.css">
 
-	<script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="   crossorigin="anonymous"></script>
+	<script src="js/jquery.js"></script>
 </head>
 <style type="text/css">
 	* {
@@ -81,7 +81,7 @@
 </style>
 <body>
 	<div class="wrapper">
-		<div style="display:none;"><img id="source" src="http://i.imgur.com/3HOOlyL.jpg" style="opacity: 0.7"></div>
+		<div style="display:none;"><img id="source" src="img/grid.jpeg" style="opacity: 0.7"></div>
 
 		<div class="sperm-box" id="stats">
 			<div class="container">
@@ -92,6 +92,9 @@
 					</ul>
 				</div>
 			</div>
+			<span class="text-center" style="position: relative; bottom: -25; display: block; color: black">
+				x: <span id="player_x">-</span> y: <span id="player_y">-</span>
+			</span>
 		</div>
 
 		<div class="sperm-box" id="player_score">
@@ -120,11 +123,11 @@
 						<div class="form-group">
 							<input autocomplete="off" id="nickname" class="form-control" type="text" placeholder="Nickname">
 						</div>
-						<button type="submit" class="btn btn-primary" style="width: 100%">PLAY!</button>
+						<button type="submit" class="" style="width: 100%">PLAY!</button>
 					</form>
 					<br><br>
-					<button class="btn btn-warning" style="width: 49.5%">DONATE</button>
-					<button class="btn btn-danger" style="width: 49.5%">REDDIT</button>
+					<button class="" style="width: 49.5%">DONATE</button>
+					<button class="" style="width: 49.5%">REDDIT</button>
 				</div>
 			</div>
 		</div>

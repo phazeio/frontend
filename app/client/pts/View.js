@@ -29,11 +29,11 @@ function View() {
 	this.resize = () => {
 		// reverse the zoom of the temp image
 		var tempZoom = Game.Zoom.getZoom() > 1 ? 1 - (Game.Zoom.getZoom() - 1) : 1 + (1 - Game.Zoom.getZoom());
-		// this.tempContext.scale(tempZoom, tempZoom);
+		this.tempContext.scale(tempZoom, tempZoom);
 		this.tempContext.drawImage(ctx.canvas, 0, 0);
 
-		// this.tempCanvas.width = window.innerWidth;
-		// this.tempCanvas.height = window.innerHeight;
+		this.tempCanvas.width = window.innerWidth;
+		this.tempCanvas.height = window.innerHeight;
 
 
 		this.width = window.outerWidth;
