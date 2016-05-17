@@ -1,4 +1,6 @@
-var Game = require('./Game');
+var Game = require('./Game').Game
+	Player = require('./Game').Player
+	Food = require('./Game').Food;
 
 module.exports = {
 	/*
@@ -7,15 +9,17 @@ module.exports = {
 	* Store Player + Socket ID in array
 	*/
 	handshake: (data) => {
-		var p = new Game.Player(data.username, this.socket);
+		var p = new Player(data.username, this.socket);
 		Game.Players.push(p);
 
 		// send stuff back to player
 		var player_copy = Object.assign({}, p);
 		delete player_copy['socket'];
 
+		console.log(p);
+
 		var packet = {id: 'handshake', player: player_copy, map: Game.Map};
-		p.socket.sendUTF(JSON.stringify(p));
+		p.getSocket().sendUTF(JSON.stringify(p));
 	},
 
 	move: (data) => {

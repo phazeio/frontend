@@ -11,12 +11,13 @@ var Game = {}
 	, FOOD_RADIUS = 6
 	, PLAYER_RADIUS = 25
 	, SNAKINESS = 10
-	, VIEW_DISTANCE = 2000;
+	, VIEW_DISTANCE = 2000
+	, MAP_SIZE = 15000;
 
 // array of entities
 Game.Food = [];
 Game.Players = [];
-Game.Map = new Map(15000, 15000);
+Game.Map = new Map(MAP_SIZE, MAP_SIZE);
 Game.Leaderboard = [];
 
 Game.FindFood = (_id) => {
@@ -94,7 +95,7 @@ function Entity(x, y, radius) {
 	Point.call(this, x, y);
 	this._id 	= createObjectID();	
 	this.radius = radius;
-	this.color 	= randomColor();
+	this.color 	= API.randomColor();
 
 	// set id
 	this.set_id = (_id) => this._id = _id;
@@ -194,4 +195,6 @@ setInterval(() => {
 	})
 }, 1000/120)
 
-module.exports = Game;
+module.exports.Game = Game;
+module.exports.Player = Player;
+module.exports.Food = Food;

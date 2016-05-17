@@ -3,7 +3,6 @@
 var Game = {}
 	, SPEED = 5
 	, MAP_SIZE = 4000
-	, TURN_SOFTEN = 10
 	, FOOD_RADIUS = 6
 	, LINE_WIDTH = 5
 	, PLAYER_RADIUS = 25
@@ -44,12 +43,13 @@ function sendHandshake(username) {
 	* COMPLETE HANDSHAKE + BUILD CLIENT SIDE FROM SERVER DATA
 	*
 	*/
+	console.log('swag');
 	ws.send(JSON.stringify({id: 'handshake', username: username}))
 }
 
 function startGame(data) {
 
-	Game.Map = new Map(data.map.getX(), data.map.getY());
+	Game.Map = new Map(data.map.getWidth(), data.map.Height());
 	Game.View = new View();
 	Game.Player = new Player(data.player.getUsername(), 
 		data.player.getX(), 

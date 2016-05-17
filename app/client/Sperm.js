@@ -14,7 +14,7 @@ window.onload = function() {
 		}
 
 		// begin game ;)
-		startGame(nickname.val());
+		sendHandshake(nickname.val());
 	})
 
 	var play_btn = document.getElementById('play_btn')

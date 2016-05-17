@@ -40,14 +40,15 @@ module.exports.startWebSocketServer = function(server) {
       connection.on('message', function(message) {
         // console.log(message.utf8Data)
           if (message.type === 'utf8') {
-            try {
+            // try {
               var msg = JSON.parse(message.utf8Data);
               if(msg.id === 'handshake')
                 msg.socket = connection;
+              console.log(msg);
               Events[msg.id](msg);
-            } catch(e) {
-              console.log('not json message... hmmm')
-            }
+            // } catch(e) {
+            //   console.log('not json message... hmmm')
+            // }
           }
           else if (message.type === 'binary') {
               console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');

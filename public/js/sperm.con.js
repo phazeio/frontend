@@ -407,7 +407,6 @@ SpermEvent.on('player_move_event', e => {
 var Game = {}
 	, SPEED = 5
 	, MAP_SIZE = 4000
-	, TURN_SOFTEN = 10
 	, FOOD_RADIUS = 6
 	, LINE_WIDTH = 5
 	, PLAYER_RADIUS = 25
@@ -434,7 +433,7 @@ function Map(w, h) {
 	this.bkg = document.getElementById('source');
 }
 
-function startGame(username) {
+function sendHandshake(username) {
 	music.play();
 
 	$('.wrapper').show();
@@ -448,11 +447,18 @@ function startGame(username) {
 	* COMPLETE HANDSHAKE + BUILD CLIENT SIDE FROM SERVER DATA
 	*
 	*/
+	console.log('swag');
 	ws.send(JSON.stringify({id: 'handshake', username: username}))
+}
 
-	Game.Map = new Map(4000, 4000);
+function startGame(data) {
+
+	Game.Map = new Map(data.map.getWidth(), data.map.Height());
 	Game.View = new View();
-	Game.Player = new Player(username);
+	Game.Player = new Player(data.player.getUsername(), 
+		data.player.getX(), 
+		data.player.getY(), 
+		data.player.getColor());
 	Game.Zoom = new Zoom();
 	Game.food = [];
 
@@ -519,13 +525,18 @@ var ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
 ws.onmessage = (o) => {
 	try {
 		var msg = JSON.parse(o);
-		messages[o.name](o);
+		messages[o.name](msg);
 	} catch(e) {
 		console.log('cannot parse the json :o')
 	}
 }
 
 var messages = {
+	handshake: function(h) {
+		console.log(h)
+		startGame(h);
+	},
+
 	game: function(g) {
 		Game.food = g.food;
 		Game.players = g.players;
@@ -533,7 +544,7 @@ var messages = {
 }
 
 SpermEvent.on('player_move_event', e => {
-	// ws.send(JSON.stringify({id:'move', player: e.player}));
+	ws.send(JSON.stringify({id:'move', player: e.player}));
 })
 
 SpermEvent.on('player_eat_event', e => {
