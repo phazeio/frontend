@@ -67,7 +67,7 @@ function Player(username, x, y, _id, color) {
 
 		if (dif > Math.PI) {
 			dif = (2 * Math.PI) - dif;
-			theta += Math.abs(theta - newTheta) > Math.PI && newTheta < Math.PI ? dif / TURN_SOFTEN : -1 * dif / TURN_SOFTEN;
+			theta += ((Math.abs(theta - newTheta) > Math.PI && newTheta < Math.PI) ? dif / TURN_SOFTEN : -1 * dif / TURN_SOFTEN) + Math.PI * 2;
 			theta %= Math.PI * 2;
 		} else {
 			theta += newTheta > theta ? dif / TURN_SOFTEN : -1 * dif / TURN_SOFTEN;
@@ -95,8 +95,7 @@ function Player(username, x, y, _id, color) {
 		for (var i = 0; i < 360; i++) 
 			if (this.impact[i]) 
 				for (var j = 0; j < this.impact[i] * 2; j++) 
-					//maybe a += should be on the following line, the world may never know though because Coltrane won't push the fucking food spawning
-					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] = this.impact[i] / 2 * Math.sin(j * Math.PI / this.impact[i] / 2);
+					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] += this.impact[i] * Math.sqrt(Game.Player.radius) / 40 * Math.sin(j * Math.PI / this.impact[i] / 2);
 
 		this.impact = [];
 
