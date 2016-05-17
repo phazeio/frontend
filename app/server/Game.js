@@ -21,9 +21,13 @@ var Game = {}
 Game.start = function() {
 	setInterval(() => {
 		Game.Players.forEach(p => {
+			var player_copy = Object.assign({}, p);
+			delete player_copy['socket'];
+
 			var g = {
 				food: [],
-				players: []
+				players: [],
+				player: player_copy,
 			},	v = getView(p);
 
 			// load players too

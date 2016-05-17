@@ -11,9 +11,10 @@ var messages = {
 	},
 
 	game: function(data) {
+		Game.Player.score = data.update.player.score;
 		data.update.food.forEach(e => {
 			var f = findFood(e._id);
-			if(f === null)
+			if(f === null && !Game.Player.hasFood(e._id))
 				Game.food.push(new Food(e.x, e.y, e.color, e._id))
 		});
 

@@ -86,7 +86,6 @@ function h2r(h) {
         b: parseInt(result[3], 16)
     } : null;
 }
-
 /*
 * find food
 */
@@ -118,7 +117,6 @@ function drawAllFood() {
 
 			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
 			Game.Zoom.scale();
-			Game.Player.score++;
 			Game.food.splice(i, 1);
 			i--;
 		}

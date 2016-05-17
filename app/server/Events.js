@@ -36,6 +36,9 @@ module.exports = {
 	*/
 	eat: (data) => {
 		var f = Game.FindFood(data.food._id);
+		if(f === null)
+			return;
+
 		var p = Game.FindPlayer(data.player._id);
 
 		p.setScore(p.getScore() + 1);
