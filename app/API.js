@@ -17,15 +17,19 @@ function crds2ctx(o) {
 * @return object - 
 */	
 function angleBetween(start, end) {
-	var opp = end.y - start.y,
-			adj = end.x - start.x;
-	return Math.atan(opp/adj) + (end.x <= start.x ? Math.PI : 0); //theta depends on quadrant
+	var y = end.y - start.y,
+			x = end.x - start.x;
+	return ((Math.atan2(y, x) + Math.PI * 2) % (Math.PI * 2))
 }
 
 function sineCircleXYatAngle(cx, cy, radius, amplitude, angle, sineCount){
 	var x = cx + (radius + amplitude * Math.sin(sineCount * angle)) * Math.cos(angle),
 		y = cy + (radius + amplitude * Math.sin(sineCount * angle)) * Math.sin(angle);
   	return({x:x,y:y});
+}
+
+function toDegrees(n) {
+	return n * 180 / Math.PI;
 }
 
 function spawnFood() {
