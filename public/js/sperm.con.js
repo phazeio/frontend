@@ -150,9 +150,6 @@ function Entity(x, y, radius, _id) {
 	this.getRadius = () => this.radius;
 }
 
-var doge = document.createElement('img');
-doge.src = 'https://cdn.thinglink.me/api/image/727110550026190849/1240/10/scaletowidth';
-
 /**
 * Player Class
 */
@@ -233,12 +230,6 @@ function Player(username) {
 		  		pt = sineCircleXYatAngle(x, y, this.radius - this.skews[i], amp, angle, sineCount);
 		  	ctx.lineTo(pt.x, pt.y);
 		}
-
-
-		doge.width = this.radius + 5;
-		doge.height = this.radius + 5;
-
-		// ctx.fillStyle = ctx.createPattern(doge, 'repeat');
 
 		if(this.nitrus === true) {
 			ctx.shadowColor = '#ff5050'
@@ -348,11 +339,10 @@ function Food() {
 	*follow leader when chained
 	*/
 	this.followLeader = function(o) {
-		var dist = getDistance(o, this);
-		var distThreshold = 20;
-		var attractionStrength = distThreshold - dist - SNAKINESS;
-
-		var angle = angleBetween(this, o);
+		var dist = getDistance(o, this)
+			, distThreshold = 20
+			, attractionStrength = distThreshold - dist - SNAKINESS;
+			, angle = angleBetween(this, o);
 			this.y -= attractionStrength * Math.sin(angle);
 			this.x -= attractionStrength * Math.cos(angle);
 	}

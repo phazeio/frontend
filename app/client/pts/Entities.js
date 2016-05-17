@@ -23,9 +23,6 @@ function Entity(x, y, radius, _id) {
 	this.getRadius = () => this.radius;
 }
 
-var doge = document.createElement('img');
-doge.src = 'https://cdn.thinglink.me/api/image/727110550026190849/1240/10/scaletowidth';
-
 /**
 * Player Class
 */
@@ -35,7 +32,7 @@ function Player(username) {
 	this.skews = [];
 	this.impact = [];
 	this.score = 0;
-	this.nitrus = false;
+	this.nitrous = false;
 	this.username = username;
 	this.speed = SPEED;
 
@@ -101,26 +98,13 @@ function Player(username) {
 		this.impact = [];
 
 		for (var i = 0; i < 360; i++) {
-
 			var angle = i * Math.PI / 180,
 		  		pt = sineCircleXYatAngle(x, y, this.radius - this.skews[i], amp, angle, sineCount);
 		  	ctx.lineTo(pt.x, pt.y);
 		}
 
-
-		doge.width = this.radius + 5;
-		doge.height = this.radius + 5;
-
-		// ctx.fillStyle = ctx.createPattern(doge, 'repeat');
-
-		if(this.nitrus === true) {
-			ctx.shadowColor = '#ff5050'
-			ctx.shadowBlur = 30;
-		} else {
-			ctx.shadowColor = '#595959';
-			ctx.shadowBlur = 20;
-		}
-
+		ctx.shadowBlur = this.nitrous ? 30 : 20;
+		ctx.shadowColor = this.nitrous ? '#ff5050' : '#595959';
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
 		ctx.fillStyle = this.color;
@@ -129,10 +113,7 @@ function Player(username) {
 		ctx.strokeStyle = 'rgb(r: ' + h2r(this.color).r + ', g: ' + (h2r(this.color).g) + ', b: ' + (h2r(this.color).b + 15) + ')';
 		ctx.closePath();
 		ctx.stroke();
-
-		// because double tildas are fucking cool
-		ctx.font = (~~20) + "px Helvetica";
-
+		ctx.font = 20 + "px Helvetica";
 		ctx.shadowColor = this.color;
 		ctx.shadowBlur = 10;
 		ctx.shadowOffsetX = 0;
@@ -158,21 +139,16 @@ function Food() {
 	this.chained = false;
 
 	this.draw = function() {
-		var r = h2r(this.color);
+		var r = h2r(this.color)
+			, crds = crds2ctx(this);
 
-		if(r == null)
-			return;
-
-		var crds = crds2ctx(this);
-
-		if(this.chained)
-			if(Game.Player.nitrus === true) {
-				ctx.shadowColor = '#ff5050'
-				ctx.shadowBlur = 30;
-				ctx.shadowBlur = 10;
-				ctx.shadowOffsetX = 0;
-				ctx.shadowOffsetY = 0;
-			}
+		if (this.chained && Game.Player.nitrous === true) {}
+			ctx.shadowColor = '#ff5050'
+			ctx.shadowBlur = 30;
+			ctx.shadowBlur = 10;
+			ctx.shadowOffsetX = 0;
+			ctx.shadowOffsetY = 0;
+		}
 
 		ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
 		ctx.beginPath();
@@ -202,10 +178,10 @@ function Food() {
 	* do the fancy stuff w/ the sinusoid at the right position to make the collision look pretty
 	*/
 	this.checkForce = function(o) {
-		var dist = getDistance(o, this);
-		var distThreshold = 20;
-		var padding = 2;
-		var attractionStrength = distThreshold - dist + padding;
+		var dist = getDistance(o, this)
+			, distThreshold = 20
+			, padding = 2
+			, attractionStrength = distThreshold - dist + padding;
 
 		if (dist < distThreshold) {
 			var angle = angleBetween(this, o);
@@ -221,20 +197,20 @@ function Food() {
 	*follow leader when chained
 	*/
 	this.followLeader = function(o) {
-		var dist = getDistance(o, this);
-		var distThreshold = 20;
-		var attractionStrength = distThreshold - dist - SNAKINESS;
+		var dist = getDistance(o, this)
+			, distThreshold = 20
+			, attractionStrength = distThreshold - dist - SNAKINESS;
+			, angle = angleBetween(this, o);
 
-		var angle = angleBetween(this, o);
-			this.y -= attractionStrength * Math.sin(angle);
-			this.x -= attractionStrength * Math.cos(angle);
+		this.y -= attractionStrength * Math.sin(angle);
+		this.x -= attractionStrength * Math.cos(angle);
 	}
 
 	/*
 	*slowly increase food radius
 	*/
 	this.fadeIn = function (rate) {
-		if(this.chained)
+		if (this.chained)
 			this.radius = this.radius < FOOD_RADIUS + (Game.Player.score * 0.2) ? this.radius + rate : FOOD_RADIUS + (Game.Player.score * 0.2);
 		else
 			this.radius = this.radius < FOOD_RADIUS ? this.radius + rate : FOOD_RADIUS;
