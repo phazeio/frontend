@@ -33,6 +33,7 @@ function Player(username) {
 	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
 	this.food = [];
 	this.skews = [];
+	this.impact = [];
 	this.score = 0;
 	this.nitrus = false;
 	this.username = username;
@@ -98,7 +99,6 @@ function Player(username) {
 					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] = this.impact[i] / 2 * Math.sin(j * Math.PI / this.impact[i] / 2);
 
 		this.impact = [];
-
 
 		for (var i = 0; i < 360; i++) {
 

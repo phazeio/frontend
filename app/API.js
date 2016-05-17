@@ -28,6 +28,10 @@ function sineCircleXYatAngle(cx, cy, radius, amplitude, angle, sineCount){
   	return({x:x,y:y});
 }
 
+function toDegrees(n) {
+	return n * 180 / Math.PI;
+}
+
 function spawnFood() {
 	Game.food.push(new Food());
 }

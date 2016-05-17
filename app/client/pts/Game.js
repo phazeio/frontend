@@ -3,6 +3,7 @@
 var Game = {}
 	, SPEED = 5
 	, MAP_SIZE = 4000
+	, TURN_SOFTEN = 10
 	, FOOD_RADIUS = 6
 	, LINE_WIDTH = 5
 	, PLAYER_RADIUS = 25
