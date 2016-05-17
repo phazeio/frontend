@@ -9,8 +9,13 @@ module.exports = {
 	handshake: (data) => {
 		var p = new Game.Player(data.username, this.socket);
 		Game.Players.push(p);
-		// send back id to player
-		p.socket.send
+
+		// send stuff back to player
+		var player_copy = Object.assign({}, p);
+		delete player_copy['socket'];
+
+		var packet = {id: 'handshake', player: player_copy, map: Game.Map};
+		p.socket.sendUTF(JSON.stringify(p));
 	},
 
 	move: (data) => {

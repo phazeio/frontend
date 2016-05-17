@@ -29,7 +29,7 @@ function Map(w, h) {
 	this.bkg = document.getElementById('source');
 }
 
-function startGame(username) {
+function sendHandshake(username) {
 	music.play();
 
 	$('.wrapper').show();
@@ -44,10 +44,16 @@ function startGame(username) {
 	*
 	*/
 	ws.send(JSON.stringify({id: 'handshake', username: username}))
+}
 
-	Game.Map = new Map(4000, 4000);
+function startGame(data) {
+
+	Game.Map = new Map(data.map.getX(), data.map.getY());
 	Game.View = new View();
-	Game.Player = new Player(username);
+	Game.Player = new Player(data.player.getUsername(), 
+		data.player.getX(), 
+		data.player.getY(), 
+		data.player.getColor());
 	Game.Zoom = new Zoom();
 	Game.food = [];
 

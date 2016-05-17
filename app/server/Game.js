@@ -74,6 +74,9 @@ function Map(w, h) {
 	this.width 		= w;
 	this.height	 	= h;
 	this.bkg 		= 'url';
+
+	this.getWidth = () => this.width;
+	this.getHeight = () => this.height;
 }
 
 /*
@@ -87,11 +90,11 @@ function Point(x, y) {
 /*
 * @class Entity
 */
-function Entity(x, y, radius, color) {
+function Entity(x, y, radius) {
 	Point.call(this, x, y);
 	this._id 	= createObjectID();	
 	this.radius = radius;
-	this.color 	= color;
+	this.color 	= randomColor();
 
 	// set id
 	this.set_id = (_id) => this._id = _id;
@@ -112,7 +115,7 @@ function Entity(x, y, radius, color) {
 * @class Player
 */
 function Player(username, socket) {
-	Entity.call(this, x, y, PLAYER_RADIUS, color);
+	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
 	this.food = [];
 	this.score = 0;
 	this.username = username;
