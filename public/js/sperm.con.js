@@ -416,7 +416,7 @@ function startGame(username) {
 	* COMPLETE HANDSHAKE + BUILD CLIENT SIDE FROM SERVER DATA
 	*
 	*/
-	ws.send(JSON.stringify({name: 'handshake', username: username}))
+	ws.send(JSON.stringify({id: 'handshake', username: username}))
 
 	Game.Map = new Map(4000, 4000);
 	Game.View = new View();
@@ -501,7 +501,7 @@ var messages = {
 }
 
 SpermEvent.on('player_move_event', e => {
-	ws.send(JSON.stringify({id:'move', player: e.player}));
+	// ws.send(JSON.stringify({id:'move', player: e.player}));
 })
 
 SpermEvent.on('player_eat_event', e => {

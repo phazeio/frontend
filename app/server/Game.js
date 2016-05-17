@@ -111,12 +111,12 @@ function Entity(x, y, radius, color) {
 /*
 * @class Player
 */
-function Player(username, x, y, color) {
+function Player(username, socket) {
 	Entity.call(this, x, y, PLAYER_RADIUS, color);
 	this.food = [];
 	this.score = 0;
 	this.username = username;
-	this.socket = null;
+	this.socket = socket;
 
 	this.getScore = () => this.score;
 	this.getUsername = () => this.username;

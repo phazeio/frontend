@@ -7,9 +7,10 @@ module.exports = {
 	* Store Player + Socket ID in array
 	*/
 	handshake: (data) => {
-		var p = new Game.Player(data.username, data.x, data.y, data.color);
+		var p = new Game.Player(data.username, this.socket);
 		Game.Players.push(p);
 		// send back id to player
+		p.socket.send
 	},
 
 	move: (data) => {

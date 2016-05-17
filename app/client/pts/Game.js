@@ -43,7 +43,7 @@ function startGame(username) {
 	* COMPLETE HANDSHAKE + BUILD CLIENT SIDE FROM SERVER DATA
 	*
 	*/
-	ws.send(JSON.stringify({name: 'handshake', username: username}))
+	ws.send(JSON.stringify({id: 'handshake', username: username}))
 
 	Game.Map = new Map(4000, 4000);
 	Game.View = new View();

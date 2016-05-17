@@ -17,7 +17,7 @@ var messages = {
 }
 
 SpermEvent.on('player_move_event', e => {
-	ws.send(JSON.stringify({id:'move', player: e.player}));
+	// ws.send(JSON.stringify({id:'move', player: e.player}));
 })
 
 SpermEvent.on('player_eat_event', e => {
