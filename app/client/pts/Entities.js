@@ -127,14 +127,24 @@ function Player(username, x, y, _id, color) {
 		ctx.textAlign = "center";
 		ctx.fillText(this.username, window.outerWidth / 2, window.outerHeight / 2 + this.radius + 20); 
 	}
+
+	this.hasFood = function(_id) {
+		var r = false;
+		this.food.forEach(e => {
+			if(e._id === _id)
+				return r = true;
+		})
+
+		return r;
+	}
 }
 
 /**
 * Food Class
 *
 */
-function Food() {
-	Entity.call(this, Math.random() * Game.Map.width, Math.random() * Game.Map.height, FOOD_RADIUS);
+function Food(x, y, color, _id) {
+	Entity.call(this, x, y, FOOD_RADIUS, _id, color);
 
 	this.color = randomColor();
 	this.radius = FOOD_RADIUS * 0.2;
@@ -143,8 +153,6 @@ function Food() {
 	this.draw = function() {
 		var r = h2r(this.color)
 			, crds = crds2ctx(this);
-		console.log(h2r(this.color));
-		console.log('drew food');
 
 		if (this.chained && Game.Player.nitrous === true) {
 			ctx.shadowColor = '#ff5050'

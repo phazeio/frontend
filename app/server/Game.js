@@ -18,6 +18,37 @@ var Game = {}
 	, VIEW_DISTANCE = 2000
 	, MAP_SIZE = 4000;
 
+Game.start = function() {
+	setInterval(() => {
+		Game.Players.forEach(p => {
+			var player_copy = Object.assign({}, p);
+			delete player_copy['socket'];
+
+			var g = {
+				food: [],
+				players: [],
+				player: player_copy,
+			},	v = getView(p);
+
+			// load players too
+			Game.Food.forEach(e => {
+				v.isInView(e);
+				g.food.push(e);
+			});
+
+			p.socket.sendUTF(JSON.stringify({id: 'game', update: g}));
+		})
+	}, 1000/120)
+
+
+	setInterval(() => {
+		if(Game.Players != 0)
+			Game.Food.push(new Food(API.randomColor()));
+
+		console.log('pushed')
+	}, 1000/2);
+}
+
 // array of entities
 Game.Food = [];
 Game.Players = [];
@@ -31,8 +62,8 @@ Game.FindFood = (_id) => {
 	})
 }
 
-Game.RemoveFood = (e) => {
-	Game.Food.splice(this.indexOf(e), 1);
+Game.RemoveFood = function(e) {
+	Game.Food.splice(Game.Food.indexOf(e), 1);
 }
 
 Game.FindPlayer = (_id) => {
@@ -48,8 +79,8 @@ Game.FindPlayer = (_id) => {
 	return p;
 }
 
-Game.RemovePlayer = (e) => {
-	Game.Players.splice(this.indexOf(e), 1);
+Game.RemovePlayer = function(e) {
+	Game.Players.splice(Game.Player.indexOf(e), 1);
 }
 
 // function EntityArray() {
@@ -94,7 +125,7 @@ function Point(x, y) {
 /*
 * @class Entity
 */
-function Entity(x, y, radius) {
+function Entity(x, y, radius, color) {
 	Point.call(this, x, y);
 	this._id 	= createObjectID(16);	
 	this.radius = radius;
@@ -129,6 +160,9 @@ function Player(username, socket) {
 	this.getUsername = () => this.username;
 	this.getFood = () => this.food;
 	this.getSocket = () => this.socket;
+
+	this.setScore = s => this.score = s;
+	this.setUsername = u => this.username = u;
 }
 
 // Player.prototype.getView = () => {
@@ -155,7 +189,7 @@ function View(tY, bY, rX, lX) {
 
 
 function getView(e) {
-	return new View(e.y - VIEW_DISTANCE, e.y + VIEW_DISTANCE, e.x - VIEW_DISTANCE, e.x + VIEW_DISTANCE);
+	return new View(e.y - VIEW_DISTANCE, e.y + VIEW_DISTANCE, e.x + VIEW_DISTANCE, e.x - VIEW_DISTANCE);
 }
 
 /*
@@ -163,7 +197,6 @@ function getView(e) {
 * returns boolean
 */
 View.prototype.isInView = function(r) {
-	console.log(r.x > this.leftX);
 	if(r.x > this.leftX && r.x < this.rightX && r.y > this.topY && r.y < this.bottomY)
 		return true;
 
@@ -173,8 +206,8 @@ View.prototype.isInView = function(r) {
 /*
 * @class Food
 */
-function Food(color) {
-	Entity.call(this, ~~((Math.random() * MAP_SIZE)), ~~((Math.random()* MAP_SIZE)), FOOD_RADIUS, color);
+function Food() {
+	Entity.call(this, ~~(Math.random() * MAP_SIZE), ~~(Math.random() * MAP_SIZE), FOOD_RADIUS);
 	this.chained = false;
 	this.player = null;
 
@@ -184,29 +217,6 @@ function Food(color) {
 	this.getPlayer = () => this.player;
 	this.getChained = () => this.chained;
 }
-
-setInterval(() => {
-	Game.Players.forEach(p => {
-		var g = {
-			food: [],
-			players: []
-		},	v = getView(p);
-
-		console.log(v);
-		// load players too
-		Game.Food.forEach(e => {
-			v.isInView(e);
-		});
-
-		p.socket.sendUTF(JSON.stringify({id: 'game', update: g}));
-	})
-}, 1000/120)
-
-
-setInterval(() => {
-	if(Game.Players != 0)
-		Game.Food.push(new Food(API.randomColor()));
-}, 1000/5);
 
 module.exports.Game = Game;
 module.exports.Player = Player;

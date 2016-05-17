@@ -43,7 +43,6 @@ function sendHandshake(username) {
 	* COMPLETE HANDSHAKE + BUILD CLIENT SIDE FROM SERVER DATA
 	*
 	*/
-	console.log('swag');
 	ws.send(JSON.stringify({id: 'handshake', username: username}))
 }
 

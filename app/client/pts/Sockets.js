@@ -11,8 +11,14 @@ var messages = {
 	},
 
 	game: function(data) {
-		Game.food = data.update.food;
-		Game.players = data.update.players;
+		Game.Player.score = data.update.player.score;
+		data.update.food.forEach(e => {
+			var f = findFood(e._id);
+			if(f === null && !Game.Player.hasFood(e._id))
+				Game.food.push(new Food(e.x, e.y, e.color, e._id))
+		});
+
+		// Game.players = data.update.players;
 	}
 }
 

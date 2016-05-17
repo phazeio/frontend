@@ -35,8 +35,11 @@ module.exports = {
 	* specifis what player ate it
 	*/
 	eat: (data) => {
-		var f = Game.FindFood(data.Food._id);
-		var p = Game.FindPlayer(data.Player._id);
+		var f = Game.FindFood(data.food._id);
+		if(f === null)
+			return;
+
+		var p = Game.FindPlayer(data.player._id);
 
 		p.setScore(p.getScore() + 1);
 
