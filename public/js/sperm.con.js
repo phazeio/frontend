@@ -201,8 +201,10 @@ function Player(username, x, y, _id, color) {
 
 	this.getScoreDecrease = () => 0.004 * this.score;
 
-	this.skews.fill(0, 0, 360);
-	
+	for (var i = 0; i < 360; i++)
+		this.skews[i] = 0;
+
+
 	/*
 	* move player
 	*/
@@ -247,41 +249,44 @@ function Player(username, x, y, _id, color) {
 		ctx.closePath();
 		ctx.fill();
 
+		var amp = 1.2,
+			sineCount = Math.floor(Math.random() * 5) + 3,
+			start = 0,
+			stop = start + 360;
 
-		// var amp = 1.2,
-		// 	sineCount = Math.floor(Math.random() * 5) + 3,
-		// 	start = 0,
-		// 	stop = start + 360;
+		ctx.beginPath();
 
-		// ctx.beginPath();
-
-		// for (var i = 0; i < 360; i++)
-		// 	this.skews[i] /= 1.1;
+		for (var i = 0; i < 360; i++)
+			this.skews[i] /= 1.1;
 
 
-		// for (var i = 0; i < 360; i++) 
-		// 	if (this.impact[i]) 
-		// 		for (var j = 0; j < this.impact[i] * 2; j++) 
-		// 			this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] = this.impact[i] / 2 * Math.sin(j * Math.PI / this.impact[i] / 2);
+		for (var i = 0; i < 360; i++) 
+			if (this.impact[i]) 
+				for (var j = 0; j < this.impact[i] * 2; j++) 
+					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] = this.impact[i] / 2 * Math.sin(j * Math.PI / this.impact[i] / 2);
 
-		// this.impact = [];
+		this.impact = [];
 
-		// for (var i = 0; i < 360; i++) {
-		// 	var angle = i * Math.PI / 180,
-		//   		pt = sineCircleXYatAngle(x, y, this.radius - this.skews[i], amp, angle, sineCount);
-		//   	ctx.lineTo(pt.x, pt.y);
-		// }
+		for (var i = 0; i < 360; i++) {
+			var angle = i * Math.PI / 180,
+		  		pt = sineCircleXYatAngle(x, y, this.radius - this.skews[i], amp, angle, sineCount);
+		  	ctx.lineTo(pt.x, pt.y);
+		}
 
-		// ctx.shadowBlur = this.nitrous ? 30 : 20;
-		// ctx.shadowColor = this.nitrous ? '#ff5050' : '#595959';
-		// ctx.shadowOffsetX = 0;
-		// ctx.shadowOffsetY = 0;
-		// ctx.fillStyle = this.color;
-		// ctx.fill();
-		// ctx.lineWidth = LINE_WIDTH;
-		// ctx.strokeStyle = 'rgb(r: ' + h2r(this.color).r + ', g: ' + (h2r(this.color).g) + ', b: ' + (h2r(this.color).b + 15) + ')';
-		// ctx.closePath();
+
+		ctx.shadowBlur = this.nitrous ? 30 : 20;
+		ctx.shadowColor = this.nitrous ? '#ff5050' : '#595959';
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+		ctx.fillStyle = this.color;
+		ctx.fill();
+		ctx.lineWidth = LINE_WIDTH;
+		if (typeof myVar != 'undefined')
+			ctx.strokeStyle = 'rgb(r: ' + h2r(this.color).r + ', g: ' + (h2r(this.color).g) + ', b: ' + (h2r(this.color).b + 15) + ')';
+		ctx.closePath();
 		ctx.stroke();
+
+
 		ctx.font = 20 + "px Helvetica";
 		ctx.shadowColor = this.color;
 		ctx.shadowBlur = 10;
@@ -319,7 +324,8 @@ function Food() {
 			ctx.shadowOffsetY = 0;
 		}
 
-		ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
+		if (typeof myVar != 'undefined')
+			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
 		ctx.beginPath();
 		ctx.arc(crds.x, crds.y, this.radius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
 		ctx.closePath();
