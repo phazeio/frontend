@@ -32,10 +32,6 @@ function toDegrees(n) {
 	return n * 180 / Math.PI;
 }
 
-function spawnFood() {
-	Game.food.push(new Food());
-}
-
 /*
 * @param o1 - an Entity object
 * @param o2 - an Entity object

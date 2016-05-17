@@ -95,6 +95,7 @@ function Player(username, x, y, _id, color) {
 		for (var i = 0; i < 360; i++) 
 			if (this.impact[i]) 
 				for (var j = 0; j < this.impact[i] * 2; j++) 
+					//maybe a += should be on the following line, the world may never know though because Coltrane won't push the fucking food spawning
 					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] = this.impact[i] / 2 * Math.sin(j * Math.PI / this.impact[i] / 2);
 
 		this.impact = [];
@@ -154,7 +155,7 @@ function Food() {
 		}
 
 		if (null != r && null !== r)
-			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
+			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30 > 255 ? 255 : r.g + 30) + ', ' + (r.b + 30 > 255 ? 255 : r.b + 30) + ', ' + 0.4 + ')';
 		ctx.beginPath();
 		ctx.arc(crds.x, crds.y, this.radius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
 		ctx.closePath();
