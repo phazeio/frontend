@@ -75,7 +75,7 @@ function startGame(data) {
 			return;
 
 		Game.Player.speed = SPEED * 2;
-		Game.Player.nitrus = true;
+		Game.Player.nitrous = true;
 	})
 
 	document.addEventListener('keyup', e => {
@@ -83,7 +83,7 @@ function startGame(data) {
 			return;
 
 		Game.Player.speed = SPEED;
-		Game.Player.nitrus = false;
+		Game.Player.nitrous = false;
 	})
 
 	window.onresize = e => {

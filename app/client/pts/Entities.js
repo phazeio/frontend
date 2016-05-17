@@ -80,11 +80,6 @@ function Player(username, x, y, _id, color) {
 	* draw player
 	*/
 	this.draw = (x, y) => {
-		ctx.fillStyle = this.color;
-		ctx.beginPath();
-		ctx.arc(x, y, this.radius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.fill();
 
 		var amp = 1.2,
 			sineCount = Math.floor(Math.random() * 5) + 3,
@@ -118,11 +113,9 @@ function Player(username, x, y, _id, color) {
 		ctx.fillStyle = this.color;
 		ctx.fill();
 		ctx.lineWidth = LINE_WIDTH;
-		if (typeof myVar != 'undefined')
-			ctx.strokeStyle = 'rgb(r: ' + h2r(this.color).r + ', g: ' + (h2r(this.color).g) + ', b: ' + (h2r(this.color).b + 15) + ')';
+		ctx.strokeStyle = 'rgb(' + h2r(this.color).r + ', ' + h2r(this.color).g + ', ' + ((h2r(this.color).b + 15) > 255 ? 255 : (h2r(this.color).b + 15)) + ')';
 		ctx.closePath();
 		ctx.stroke();
-
 
 		ctx.font = 20 + "px Helvetica";
 		ctx.shadowColor = this.color;
@@ -132,9 +125,6 @@ function Player(username, x, y, _id, color) {
 		ctx.fillStyle = this.color;
 		ctx.textAlign = "center";
 		ctx.fillText(this.username, window.outerWidth / 2, window.outerHeight / 2 + this.radius + 20); 
-
-		// // reset shadow color
-		// ctx.shadowColor = 'rgba(0,0,0,0)';
 	}
 }
 
@@ -152,6 +142,8 @@ function Food() {
 	this.draw = function() {
 		var r = h2r(this.color)
 			, crds = crds2ctx(this);
+		console.log(h2r(this.color));
+		console.log('drew food');
 
 		if (this.chained && Game.Player.nitrous === true) {
 			ctx.shadowColor = '#ff5050'
@@ -161,7 +153,7 @@ function Food() {
 			ctx.shadowOffsetY = 0;
 		}
 
-		if (typeof myVar != 'undefined')
+		if (null != r && null !== r)
 			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
 		ctx.beginPath();
 		ctx.arc(crds.x, crds.y, this.radius + 4 + (Math.random() * 1), 0, 2 * Math.PI);

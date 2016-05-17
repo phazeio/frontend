@@ -78,7 +78,6 @@ function h2r(h) {
         b: parseInt(result[3], 16)
     } : null;
 }
-
 /*
 * Draws all food entities on the map
 */
