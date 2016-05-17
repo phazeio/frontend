@@ -38,9 +38,8 @@ function Player(username) {
 
 	this.getScoreDecrease = () => 0.004 * this.score;
 
-	for (var i = 0; i < 360; i++)
-		this.skews[i] = 0;
-
+	skews.fill(0, 0, 360);
+	
 	/*
 	* move player
 	*/
@@ -120,7 +119,7 @@ function Player(username) {
 		ctx.shadowOffsetY = 0;
 		ctx.fillStyle = "black";
 		ctx.textAlign = "center";
-		ctx.fillText(this.username, window.outerWidth/2, window.outerHeight/2 + this.radius + 20); 
+		ctx.fillText(this.username, window.outerWidth / 2, window.outerHeight / 2 + this.radius + 20); 
 
 		// reset shadow color
 		ctx.shadowColor = 'rgba(0,0,0,0)';
