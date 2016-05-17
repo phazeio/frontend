@@ -142,8 +142,8 @@ function Player(username, x, y, _id, color) {
 * Food Class
 *
 */
-function Food() {
-	Entity.call(this, Math.random() * Game.Map.width, Math.random() * Game.Map.height, FOOD_RADIUS);
+function Food(x, y, color, _id) {
+	Entity.call(this, x, y, FOOD_RADIUS, _id, color);
 
 	this.color = randomColor();
 	this.radius = FOOD_RADIUS * 0.2;

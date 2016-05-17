@@ -30,3 +30,4 @@ http.listen(3000, err => {
 })
 
 require('./app/server/sockets').startWebSocketServer(http);
+require('./app/server/Game').Game.start();

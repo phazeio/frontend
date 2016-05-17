@@ -61,7 +61,15 @@ function areOverlapping(o1, o2, skew) {
 * Generates random hex color
 */
 function randomColor() {
-	return '#' + Math.floor(Math.random() * 16777215).toString(16);
+	var c = '#' + Math.floor(Math.random() * 16777215).toString(16);
+	
+	if(h2r(c) == null)
+		return randomColor();
+
+	if(h2r(c).r !== null)
+		return '#' + Math.floor(Math.random() * 16777215).toString(16);
+
+	return randomColor();
 }
 
 /* 
@@ -80,6 +88,19 @@ function h2r(h) {
 }
 
 /*
+* find food
+*/
+function findFood(_id) {
+	var food = null;
+	Game.food.forEach(e => {
+		if(e._id === _id)
+			return food = _id;
+	})
+
+	return food;
+}
+
+/*
 * Draws all food entities on the map
 */
 function drawAllFood() {
@@ -95,7 +116,7 @@ function drawAllFood() {
 			if(Game.Player.score === 0 || Game.Player.score % 5 === 0)
 				Game.Player.food.push(Game.food[i]);
 
-			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.Food});
+			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
 			Game.Zoom.scale();
 			Game.Player.score++;
 			Game.food.splice(i, 1);

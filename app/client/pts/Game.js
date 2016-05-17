@@ -43,7 +43,6 @@ function sendHandshake(username) {
 	* COMPLETE HANDSHAKE + BUILD CLIENT SIDE FROM SERVER DATA
 	*
 	*/
-	console.log('swag');
 	ws.send(JSON.stringify({id: 'handshake', username: username}))
 }
 
@@ -100,10 +99,6 @@ function startGame(data) {
 	drawInterval = setInterval(() => {
 		Game.View.draw();
 	}, 1000 / 120)
-
-	// spawnFoodInterval = setInterval(() => {
-	// 	Game.food.push(new Food());
-	// }, 10)
 }
 
 function stopGame() {

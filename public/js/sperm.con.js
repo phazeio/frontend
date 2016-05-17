@@ -97,7 +97,15 @@ function areOverlapping(o1, o2, skew) {
 * Generates random hex color
 */
 function randomColor() {
-	return '#' + Math.floor(Math.random() * 16777215).toString(16);
+	var c = '#' + Math.floor(Math.random() * 16777215).toString(16);
+	
+	if(h2r(c) == null)
+		return randomColor();
+
+	if(h2r(c).r !== null)
+		return '#' + Math.floor(Math.random() * 16777215).toString(16);
+
+	return randomColor();
 }
 
 /* 
@@ -116,6 +124,19 @@ function h2r(h) {
 }
 
 /*
+* find food
+*/
+function findFood(_id) {
+	var food = null;
+	Game.food.forEach(e => {
+		if(e._id === _id)
+			return food = _id;
+	})
+
+	return food;
+}
+
+/*
 * Draws all food entities on the map
 */
 function drawAllFood() {
@@ -131,7 +152,7 @@ function drawAllFood() {
 			if(Game.Player.score === 0 || Game.Player.score % 5 === 0)
 				Game.Player.food.push(Game.food[i]);
 
-			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.Food});
+			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
 			Game.Zoom.scale();
 			Game.Player.score++;
 			Game.food.splice(i, 1);
@@ -305,8 +326,8 @@ function Player(username, x, y, _id, color) {
 * Food Class
 *
 */
-function Food() {
-	Entity.call(this, Math.random() * Game.Map.width, Math.random() * Game.Map.height, FOOD_RADIUS);
+function Food(x, y, color, _id) {
+	Entity.call(this, x, y, FOOD_RADIUS, _id, color);
 
 	this.color = randomColor();
 	this.radius = FOOD_RADIUS * 0.2;
@@ -471,7 +492,6 @@ function sendHandshake(username) {
 	* COMPLETE HANDSHAKE + BUILD CLIENT SIDE FROM SERVER DATA
 	*
 	*/
-	console.log('swag');
 	ws.send(JSON.stringify({id: 'handshake', username: username}))
 }
 
@@ -528,10 +548,6 @@ function startGame(data) {
 	drawInterval = setInterval(() => {
 		Game.View.draw();
 	}, 1000 / 120)
-
-	// spawnFoodInterval = setInterval(() => {
-	// 	Game.food.push(new Food());
-	// }, 10)
 }
 
 function stopGame() {
@@ -559,8 +575,13 @@ var messages = {
 	},
 
 	game: function(data) {
-		Game.food = data.update.food;
-		Game.players = data.update.players;
+		data.update.food.forEach(e => {
+			var f = findFood(e._id);
+			if(f === null)
+				Game.food.push(new Food(e.x, e.y, e.color, e._id))
+		});
+
+		// Game.players = data.update.players;
 	}
 }
 
