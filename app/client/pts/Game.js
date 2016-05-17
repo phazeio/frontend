@@ -8,6 +8,7 @@ var Game = {}
 	, PLAYER_RADIUS = 25
 	, SNAKINESS = 10
 	, CTX = null
+	, TURN_SOFTEN = 10
 	, theta = 0
 	, mouse = {
 		x: 0,
@@ -49,12 +50,12 @@ function sendHandshake(username) {
 
 function startGame(data) {
 
-	Game.Map = new Map(data.map.getWidth(), data.map.Height());
+	Game.Map = new Map(data.map.width, data.map.height);
 	Game.View = new View();
-	Game.Player = new Player(data.player.getUsername(), 
-		data.player.getX(), 
-		data.player.getY(), 
-		data.player.getColor());
+	Game.Player = new Player(data.player.username, 
+		data.player.x, 
+		data.player.y, 
+		data.player.color);
 	Game.Zoom = new Zoom();
 	Game.food = [];
 

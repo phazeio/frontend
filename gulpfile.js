@@ -6,7 +6,7 @@ var gulp       = require('gulp')
   , babel      = require('gulp-babel');
 
 gulp.task('concat', function() {
-  return gulp.src(['./app/fontend/Sperm.js', './app/API.js', './app/client/pts/*.js'])
+  return gulp.src(['./app/client/Sperm.js', './app/API.js', './app/client/pts/*.js'])
     .pipe(concat('sperm.con.js'))
     .pipe(gulp.dest('./public/js'));
 });

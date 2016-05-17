@@ -1,12 +1,8 @@
 var ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
 
 ws.onmessage = (o) => {
-	try {
-		var msg = JSON.parse(o);
-		messages[o.name](msg);
-	} catch(e) {
-		console.log('cannot parse the json :o')
-	}
+	var msg = JSON.parse(o.data);
+	messages[msg.id](msg);
 }
 
 var messages = {

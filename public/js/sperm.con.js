@@ -1,3 +1,39 @@
+var music = new Audio('/audio/sperm.mp3')
+	, pop = new Audio('/audio/pop.mp3');
+
+window.onload = function() {
+	$('#overlay').fadeIn(1000);
+
+	var nickname = $('#nickname');
+
+	$('#game_form').submit(e => {
+		e.preventDefault();
+		if(nickname.val().length > 13) {
+			alert('Nickname cannot be longer than 13 characters!');
+			return;
+		}
+
+		// begin game ;)
+		sendHandshake(nickname.val());
+	})
+
+	var play_btn = document.getElementById('play_btn')
+		, mute_btn = document.getElementById('mute_btn');
+
+	play_btn.addEventListener('mouseup', () => {
+		$(play_btn).hide();
+		$(mute_btn).show();
+		music.play()
+	});
+
+	mute_btn.addEventListener('mouseup', () => {
+		$(mute_btn).hide();
+		$(play_btn).show();
+		music.pause()
+	});
+}
+
+
 /*
 * @param o - an Entity object
 *
@@ -129,10 +165,10 @@ try {
 /**
 * Entity Class
 */
-function Entity(x, y, radius, _id) {
+function Entity(x, y, radius, _id, color) {
 	this.x 		= x;
 	this.y 		= y;
-	this.color 	= randomColor();
+	this.color 	= color || randomColor();
 	this.radius = radius;
 	this._id  	= null;
 
@@ -153,21 +189,20 @@ function Entity(x, y, radius, _id) {
 /**
 * Player Class
 */
-function Player(username) {
-	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
+function Player(username, x, y, color) {
+	Entity.call(this, x, y, PLAYER_RADIUS, color);
 	this.food = [];
 	this.skews = [];
 	this.impact = [];
 	this.score = 0;
-	this.nitrus = false;
+	this.nitrous = false;
 	this.username = username;
 	this.speed = SPEED;
 
 	this.getScoreDecrease = () => 0.004 * this.score;
 
-	for (var i = 0; i < 360; i++)
-		this.skews[i] = 0;
-
+	this.skews.fill(0, 0, 360);
+	
 	/*
 	* move player
 	*/
@@ -225,20 +260,13 @@ function Player(username) {
 		this.impact = [];
 
 		for (var i = 0; i < 360; i++) {
-
 			var angle = i * Math.PI / 180,
 		  		pt = sineCircleXYatAngle(x, y, this.radius - this.skews[i], amp, angle, sineCount);
 		  	ctx.lineTo(pt.x, pt.y);
 		}
 
-		if(this.nitrus === true) {
-			ctx.shadowColor = '#ff5050'
-			ctx.shadowBlur = 30;
-		} else {
-			ctx.shadowColor = '#595959';
-			ctx.shadowBlur = 20;
-		}
-
+		ctx.shadowBlur = this.nitrous ? 30 : 20;
+		ctx.shadowColor = this.nitrous ? '#ff5050' : '#595959';
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
 		ctx.fillStyle = this.color;
@@ -247,17 +275,14 @@ function Player(username) {
 		ctx.strokeStyle = 'rgb(r: ' + h2r(this.color).r + ', g: ' + (h2r(this.color).g) + ', b: ' + (h2r(this.color).b + 15) + ')';
 		ctx.closePath();
 		ctx.stroke();
-
-		// because double tildas are fucking cool
-		ctx.font = (~~20) + "px Helvetica";
-
+		ctx.font = 20 + "px Helvetica";
 		ctx.shadowColor = this.color;
 		ctx.shadowBlur = 10;
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
 		ctx.fillStyle = "black";
 		ctx.textAlign = "center";
-		ctx.fillText(this.username, window.outerWidth/2, window.outerHeight/2 + this.radius + 20); 
+		ctx.fillText(this.username, window.outerWidth / 2, window.outerHeight / 2 + this.radius + 20); 
 
 		// reset shadow color
 		ctx.shadowColor = 'rgba(0,0,0,0)';
@@ -276,21 +301,16 @@ function Food() {
 	this.chained = false;
 
 	this.draw = function() {
-		var r = h2r(this.color);
+		var r = h2r(this.color)
+			, crds = crds2ctx(this);
 
-		if(r == null)
-			return;
-
-		var crds = crds2ctx(this);
-
-		if(this.chained)
-			if(Game.Player.nitrus === true) {
-				ctx.shadowColor = '#ff5050'
-				ctx.shadowBlur = 30;
-				ctx.shadowBlur = 10;
-				ctx.shadowOffsetX = 0;
-				ctx.shadowOffsetY = 0;
-			}
+		if (this.chained && Game.Player.nitrous === true) {
+			ctx.shadowColor = '#ff5050'
+			ctx.shadowBlur = 30;
+			ctx.shadowBlur = 10;
+			ctx.shadowOffsetX = 0;
+			ctx.shadowOffsetY = 0;
+		}
 
 		ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30) + ', ' + (r.b + 30) + ', ' + 0.4 + ')';
 		ctx.beginPath();
@@ -320,10 +340,10 @@ function Food() {
 	* do the fancy stuff w/ the sinusoid at the right position to make the collision look pretty
 	*/
 	this.checkForce = function(o) {
-		var dist = getDistance(o, this);
-		var distThreshold = 20;
-		var padding = 2;
-		var attractionStrength = distThreshold - dist + padding;
+		var dist = getDistance(o, this)
+			, distThreshold = 20
+			, padding = 2
+			, attractionStrength = distThreshold - dist + padding;
 
 		if (dist < distThreshold) {
 			var angle = angleBetween(this, o);
@@ -341,17 +361,18 @@ function Food() {
 	this.followLeader = function(o) {
 		var dist = getDistance(o, this)
 			, distThreshold = 20
-			, attractionStrength = distThreshold - dist - SNAKINESS;
+			, attractionStrength = distThreshold - dist - SNAKINESS
 			, angle = angleBetween(this, o);
-			this.y -= attractionStrength * Math.sin(angle);
-			this.x -= attractionStrength * Math.cos(angle);
+
+		this.y -= attractionStrength * Math.sin(angle);
+		this.x -= attractionStrength * Math.cos(angle);
 	}
 
 	/*
 	*slowly increase food radius
 	*/
 	this.fadeIn = function (rate) {
-		if(this.chained)
+		if (this.chained)
 			this.radius = this.radius < FOOD_RADIUS + (Game.Player.score * 0.2) ? this.radius + rate : FOOD_RADIUS + (Game.Player.score * 0.2);
 		else
 			this.radius = this.radius < FOOD_RADIUS ? this.radius + rate : FOOD_RADIUS;
@@ -402,6 +423,7 @@ var Game = {}
 	, PLAYER_RADIUS = 25
 	, SNAKINESS = 10
 	, CTX = null
+	, TURN_SOFTEN = 10
 	, theta = 0
 	, mouse = {
 		x: 0,
@@ -443,12 +465,12 @@ function sendHandshake(username) {
 
 function startGame(data) {
 
-	Game.Map = new Map(data.map.getWidth(), data.map.Height());
+	Game.Map = new Map(data.map.width, data.map.height);
 	Game.View = new View();
-	Game.Player = new Player(data.player.getUsername(), 
-		data.player.getX(), 
-		data.player.getY(), 
-		data.player.getColor());
+	Game.Player = new Player(data.player.username, 
+		data.player.x, 
+		data.player.y, 
+		data.player.color);
 	Game.Zoom = new Zoom();
 	Game.food = [];
 
@@ -513,12 +535,8 @@ function stopGame() {
 var ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
 
 ws.onmessage = (o) => {
-	try {
-		var msg = JSON.parse(o);
-		messages[o.name](msg);
-	} catch(e) {
-		console.log('cannot parse the json :o')
-	}
+	var msg = JSON.parse(o.data);
+	messages[msg.id](msg);
 }
 
 var messages = {

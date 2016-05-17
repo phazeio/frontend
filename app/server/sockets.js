@@ -2,8 +2,6 @@ var WebSocketServer
   , wss
   , Events = require('./Events');
 
-  console.log(Events['eat']);
-
 /*
 * @param server - reference to HTTP Server object
 */
@@ -44,7 +42,6 @@ module.exports.startWebSocketServer = function(server) {
               var msg = JSON.parse(message.utf8Data);
               if(msg.id === 'handshake')
                 msg.socket = connection;
-              console.log(msg);
               Events[msg.id](msg);
             // } catch(e) {
             //   console.log('not json message... hmmm')

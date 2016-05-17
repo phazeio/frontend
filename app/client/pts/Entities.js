@@ -2,10 +2,10 @@
 /**
 * Entity Class
 */
-function Entity(x, y, radius, _id) {
+function Entity(x, y, radius, _id, color) {
 	this.x 		= x;
 	this.y 		= y;
-	this.color 	= randomColor();
+	this.color 	= color || randomColor();
 	this.radius = radius;
 	this._id  	= null;
 
@@ -26,8 +26,8 @@ function Entity(x, y, radius, _id) {
 /**
 * Player Class
 */
-function Player(username) {
-	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
+function Player(username, x, y, color) {
+	Entity.call(this, x, y, PLAYER_RADIUS, color);
 	this.food = [];
 	this.skews = [];
 	this.impact = [];
@@ -38,7 +38,7 @@ function Player(username) {
 
 	this.getScoreDecrease = () => 0.004 * this.score;
 
-	skews.fill(0, 0, 360);
+	this.skews.fill(0, 0, 360);
 	
 	/*
 	* move player
@@ -141,7 +141,7 @@ function Food() {
 		var r = h2r(this.color)
 			, crds = crds2ctx(this);
 
-		if (this.chained && Game.Player.nitrous === true) {}
+		if (this.chained && Game.Player.nitrous === true) {
 			ctx.shadowColor = '#ff5050'
 			ctx.shadowBlur = 30;
 			ctx.shadowBlur = 10;
@@ -198,7 +198,7 @@ function Food() {
 	this.followLeader = function(o) {
 		var dist = getDistance(o, this)
 			, distThreshold = 20
-			, attractionStrength = distThreshold - dist - SNAKINESS;
+			, attractionStrength = distThreshold - dist - SNAKINESS
 			, angle = angleBetween(this, o);
 
 		this.y -= attractionStrength * Math.sin(angle);
