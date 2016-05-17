@@ -21,12 +21,13 @@ module.exports = {
 	},
 
 	move: (data) => {
-		var p = Game.FindPlayer(data._id);
+		var p = Game.FindPlayer(data.player._id);
+
 		if(p == null)
 			// handle this bug!
 
-		p.setX(data.x);
-		p.setY(data.y);
+		p.setX(data.player.x);
+		p.setY(data.player.y);
 	},
 
 	/*

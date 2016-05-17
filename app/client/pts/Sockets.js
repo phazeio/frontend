@@ -6,14 +6,13 @@ ws.onmessage = (o) => {
 }
 
 var messages = {
-	handshake: function(h) {
-		console.log(h)
-		startGame(h);
+	handshake: function(data) {
+		startGame(data);
 	},
 
-	game: function(g) {
-		Game.food = g.food;
-		Game.players = g.players;
+	game: function(data) {
+		Game.food = data.update.food;
+		Game.players = data.update.players;
 	}
 }
 

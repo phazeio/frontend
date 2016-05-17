@@ -5,9 +5,9 @@
 function Entity(x, y, radius, _id, color) {
 	this.x 		= x;
 	this.y 		= y;
-	this.color 	= color || randomColor();
+	this.color 	= color;
 	this.radius = radius;
-	this._id  	= null;
+	this._id  	= _id || null;
 
 	// set id
 	this.set_id = (_id) => this._id = _id;
@@ -26,8 +26,8 @@ function Entity(x, y, radius, _id, color) {
 /**
 * Player Class
 */
-function Player(username, x, y, color) {
-	Entity.call(this, x, y, PLAYER_RADIUS, color);
+function Player(username, x, y, _id, color) {
+	Entity.call(this, x, y, PLAYER_RADIUS, _id, color);
 	this.food = [];
 	this.skews = [];
 	this.impact = [];
@@ -78,51 +78,58 @@ function Player(username, x, y, color) {
 	* draw player
 	*/
 	this.draw = (x, y) => {
-		var amp = 1.2,
-			sineCount = Math.floor(Math.random() * 5) + 3,
-			start = 0,
-			stop = start + 360;
-
-		ctx.beginPath();
-
-		for (var i = 0; i < 360; i++)
-			this.skews[i] /= 1.1;
-
-
-		for (var i = 0; i < 360; i++) 
-			if (this.impact[i]) 
-				for (var j = 0; j < this.impact[i] * 2; j++) 
-					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] = this.impact[i] / 2 * Math.sin(j * Math.PI / this.impact[i] / 2);
-
-		this.impact = [];
-
-		for (var i = 0; i < 360; i++) {
-			var angle = i * Math.PI / 180,
-		  		pt = sineCircleXYatAngle(x, y, this.radius - this.skews[i], amp, angle, sineCount);
-		  	ctx.lineTo(pt.x, pt.y);
-		}
-
-		ctx.shadowBlur = this.nitrous ? 30 : 20;
-		ctx.shadowColor = this.nitrous ? '#ff5050' : '#595959';
-		ctx.shadowOffsetX = 0;
-		ctx.shadowOffsetY = 0;
 		ctx.fillStyle = this.color;
-		ctx.fill();
-		ctx.lineWidth = LINE_WIDTH;
-		ctx.strokeStyle = 'rgb(r: ' + h2r(this.color).r + ', g: ' + (h2r(this.color).g) + ', b: ' + (h2r(this.color).b + 15) + ')';
+		ctx.beginPath();
+		ctx.arc(x, y, this.radius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
 		ctx.closePath();
+		ctx.fill();
+
+
+		// var amp = 1.2,
+		// 	sineCount = Math.floor(Math.random() * 5) + 3,
+		// 	start = 0,
+		// 	stop = start + 360;
+
+		// ctx.beginPath();
+
+		// for (var i = 0; i < 360; i++)
+		// 	this.skews[i] /= 1.1;
+
+
+		// for (var i = 0; i < 360; i++) 
+		// 	if (this.impact[i]) 
+		// 		for (var j = 0; j < this.impact[i] * 2; j++) 
+		// 			this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] = this.impact[i] / 2 * Math.sin(j * Math.PI / this.impact[i] / 2);
+
+		// this.impact = [];
+
+		// for (var i = 0; i < 360; i++) {
+		// 	var angle = i * Math.PI / 180,
+		//   		pt = sineCircleXYatAngle(x, y, this.radius - this.skews[i], amp, angle, sineCount);
+		//   	ctx.lineTo(pt.x, pt.y);
+		// }
+
+		// ctx.shadowBlur = this.nitrous ? 30 : 20;
+		// ctx.shadowColor = this.nitrous ? '#ff5050' : '#595959';
+		// ctx.shadowOffsetX = 0;
+		// ctx.shadowOffsetY = 0;
+		// ctx.fillStyle = this.color;
+		// ctx.fill();
+		// ctx.lineWidth = LINE_WIDTH;
+		// ctx.strokeStyle = 'rgb(r: ' + h2r(this.color).r + ', g: ' + (h2r(this.color).g) + ', b: ' + (h2r(this.color).b + 15) + ')';
+		// ctx.closePath();
 		ctx.stroke();
 		ctx.font = 20 + "px Helvetica";
 		ctx.shadowColor = this.color;
 		ctx.shadowBlur = 10;
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
-		ctx.fillStyle = "black";
+		ctx.fillStyle = this.color;
 		ctx.textAlign = "center";
 		ctx.fillText(this.username, window.outerWidth / 2, window.outerHeight / 2 + this.radius + 20); 
 
-		// reset shadow color
-		ctx.shadowColor = 'rgba(0,0,0,0)';
+		// // reset shadow color
+		// ctx.shadowColor = 'rgba(0,0,0,0)';
 	}
 }
 

@@ -2,7 +2,6 @@
 
 var Game = {}
 	, SPEED = 5
-	, MAP_SIZE = 4000
 	, FOOD_RADIUS = 6
 	, LINE_WIDTH = 5
 	, PLAYER_RADIUS = 25
@@ -55,9 +54,11 @@ function startGame(data) {
 	Game.Player = new Player(data.player.username, 
 		data.player.x, 
 		data.player.y, 
+		data.player._id,
 		data.player.color);
 	Game.Zoom = new Zoom();
 	Game.food = [];
+	Game.players = [];
 
 	// Game.getSNAKINESS = () => SNAKINESS * this.Zoom.getZoom();
 	// Game.getLINE_WIDTH = () => LINE_WIDTH * this.Zoom.getZoom();
@@ -100,9 +101,9 @@ function startGame(data) {
 		Game.View.draw();
 	}, 1000 / 120)
 
-	spawnFoodInterval = setInterval(() => {
-		Game.food.push(new Food());
-	}, 1000)
+	// spawnFoodInterval = setInterval(() => {
+	// 	Game.food.push(new Food());
+	// }, 10)
 }
 
 function stopGame() {
