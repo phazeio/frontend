@@ -19,6 +19,10 @@ var Game = {}
 	, MAP_SIZE = 4000;
 
 Game.start = function() {
+	for(var j = 0; j < MAP_SIZE / 20; j++) {
+		Game.spawnFood();
+	}
+
 	setInterval(() => {
 		Game.Players.forEach(p => {
 			var player_copy = Object.assign({}, p);
@@ -32,21 +36,13 @@ Game.start = function() {
 
 			// load players too
 			Game.Food.forEach(e => {
-				v.isInView(e);
-				g.food.push(e);
+				if(v.isInView(e))
+					g.food.push(e);
 			});
 
 			p.socket.sendUTF(JSON.stringify({id: 'game', update: g}));
 		})
-	}, 1000/120)
-
-
-	setInterval(() => {
-		if(Game.Players != 0)
-			Game.Food.push(new Food(API.randomColor()));
-
-		console.log('pushed')
-	}, 1000/2);
+	}, 1000/60)
 }
 
 // array of entities
@@ -56,10 +52,17 @@ Game.Map = new Map(MAP_SIZE, MAP_SIZE);
 Game.Leaderboard = [];
 
 Game.FindFood = (_id) => {
+	var f = null;
 	Game.Food.forEach(e => {
 		if(e.get_id() == _id)
-			return e;
+			return f = e;
 	})
+
+	return f;
+}
+
+Game.spawnFood = function() {
+	Game.Food.push(new Food(API.randomColor()));
 }
 
 Game.RemoveFood = function(e) {
@@ -82,21 +85,6 @@ Game.FindPlayer = (_id) => {
 Game.RemovePlayer = function(e) {
 	Game.Players.splice(Game.Player.indexOf(e), 1);
 }
-
-// function EntityArray() {
-// 	Array.call(this);
-
-// 	this.find = (_id) => {
-// 		this.forEach(e => {
-// 			if(e.get_id() == _id)
-// 				return e;
-// 		})
-// 	}
-
-// 	this.removeEntity = e => {
-// 		this.splice(this.indexOf(e), 1);
-// 	}
-// }
 
 Game.addEntity = e => {
 	if(e instanceof Entity)
@@ -172,9 +160,9 @@ function Player(username, socket) {
 // 		this.y - VIEW_DISTANCE);
 // }
 
-Player.prototype.addFood = f => {
+Player.prototype.addFood = function(f) {
 	f.setChained(true);
-	this.food.push(p)
+	this.food.push(f)
 };
 
 /*

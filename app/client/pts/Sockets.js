@@ -14,8 +14,10 @@ var messages = {
 		Game.Player.score = data.update.player.score;
 		data.update.food.forEach(e => {
 			var f = findFood(e._id);
-			if(f === null && !Game.Player.hasFood(e._id))
+			if(f === null && e.chained === false) {
 				Game.food.push(new Food(e.x, e.y, e.color, e._id))
+				return;
+			}
 		});
 
 		// Game.players = data.update.players;

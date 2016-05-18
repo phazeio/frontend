@@ -35,6 +35,7 @@ module.exports = {
 	* specifis what player ate it
 	*/
 	eat: (data) => {
+		// console.log(data.food)
 		var f = Game.FindFood(data.food._id);
 		if(f === null)
 			return;
@@ -44,10 +45,11 @@ module.exports = {
 		p.setScore(p.getScore() + 1);
 
 		// specifiy if the food is being chained
-		if(data.chain)
-			return p.addFood(f);
+		if(!data.chained)
+			p.addFood(f);
 
 		Game.RemoveFood(f);
+		Game.spawnFood();
 	},
 
 	/*

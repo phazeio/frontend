@@ -63,7 +63,7 @@ function randomColor() {
 		return randomColor();
 
 	if(h2r(c).r !== null)
-		return '#' + Math.floor(Math.random() * 16777215).toString(16);
+		return c;
 
 	return randomColor();
 }
@@ -108,11 +108,10 @@ function drawAllFood() {
 			Game.food[i].radius = FOOD_RADIUS * 0.2;
 			Game.food[i].chained = true;
 
-			if(Game.Player.score === 0 || Game.Player.score % 5 === 0)
+			if(Game.Player.score === 0 || Game.Player.score % 10 === 0)
 				Game.Player.food.push(Game.food[i]);
 
 			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
-			Game.Zoom.scale();
 			Game.food.splice(i, 1);
 			i--;
 		}
