@@ -30,7 +30,7 @@ function Map(w, h) {
 }
 
 function sendHandshake(username) {
-	music.play();
+	// music.play();
 
 	$('.wrapper').show();
 

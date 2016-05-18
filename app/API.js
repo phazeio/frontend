@@ -96,6 +96,86 @@ function findFood(_id) {
 }
 
 /*
+* find player
+*/
+function findPlayer(_id) {
+	var player = null;
+	Game.players.forEach(e => {
+		if(e._id === _id)
+			return player = _id;
+	})
+
+	return player;
+}
+
+/*
+* draw players
+*/
+function drawAllPlayers() {
+	Game.players.forEach(p => {
+		drawPlayer(p);
+		p.food.forEach(f => {
+			console.log(f);
+			f.draw();
+		})
+	});
+}
+
+/*
+* @param p - Player object
+*/
+function drawPlayer(p) {
+		var crds = crds2ctx(p.x, p.y)
+			, x = crds.x
+			, y = crds.y;
+
+		var amp = 1.2,
+			sineCount = Math.floor(Math.random() * 5) + 3,
+			start = 0,
+			stop = start + 360;
+
+		ctx.beginPath();
+
+		for (var i = 0; i < 360; i++)
+			p.skews[i] /= 1.1;
+
+
+		for (var i = 0; i < 360; i++) 
+			if (p.impact[i]) 
+				for (var j = 0; j < p.impact[i] * 2; j++) 
+					p.skews[((~~(i - p.impact[i] + j)) + 360) % 360] += p.impact[i] * Math.sqrt(Game.Player.radius) / 40 * Math.sin(j * Math.PI / p.impact[i] / 2);
+
+		p.impact = [];
+
+		for (var i = 0; i < 360; i++) {
+			var angle = i * Math.PI / 180,
+		  		pt = sineCircleXYatAngle(x, y, p.radius - p.skews[i], amp, angle, sineCount);
+		  	ctx.lineTo(pt.x, pt.y);
+		}
+
+
+		ctx.shadowBlur = 20;
+		ctx.shadowColor = '#595959';
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+		ctx.fillStyle = p.color;
+		ctx.fill();
+		ctx.lineWidth = LINE_WIDTH;
+		ctx.strokeStyle = 'rgb(' + h2r(p.color).r + ', ' + h2r(p.color).g + ', ' + ((h2r(p.color).b + 15) > 255 ? 255 : (h2r(p.color).b + 15)) + ')';
+		ctx.closePath();
+		ctx.stroke();
+
+		ctx.font = "20px Helvetica";
+		ctx.shadowColor = p.color;
+		ctx.shadowBlur = 10;
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+		ctx.fillStyle = p.color;
+		ctx.textAlign = "center";
+		ctx.fillText(p.username, x, y + p.radius + 20); 
+	}
+
+/*
 * Draws all food entities on the map
 */
 function drawAllFood() {
@@ -107,9 +187,6 @@ function drawAllFood() {
 			Game.food[i].color = Game.Player.color;
 			Game.food[i].radius = FOOD_RADIUS * 0.2;
 			Game.food[i].chained = true;
-
-			if(Game.Player.score === 0 || Game.Player.score % 10 === 0)
-				Game.Player.food.push(Game.food[i]);
 
 			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
 			Game.food.splice(i, 1);

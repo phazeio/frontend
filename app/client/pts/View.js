@@ -56,9 +56,30 @@ function View() {
 		ctx.fillStyle = '#ff99cc';
 		ctx.fillRect(0,0,window.outerWidth,window.outerHeight);
 
-		ctx.drawImage(image, Game.Player.x - this.width / 2, Game.Player.y - this.height / 2, window.outerWidth, window.outerHeight, 0, 0, window.outerWidth, window.outerHeight);
+		ctx.fillStyle = '#333333';
+		ctx.shadowColor = '#cccccc';
+		ctx.shadowBlur = 5;
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+		for(var j = Game.Player.x - 1000; j < Game.Player.x + 1000; j++) {
+			var x = Game.View.width / 2 - (Game.Player.x - j);
+			if(~~j % 100 !== 0)
+				continue;
+
+			ctx.fillRect(x, 0, 1, window.innerHeight);
+		}
+		
+		for(var j = Game.Player.y - 1000; j < Game.Player.y + 1000; j++) {
+			var y = Game.View.height / 2 - (Game.Player.y - j);
+
+			if(~~j % 100 !== 0)
+				continue;
+
+			ctx.fillRect(0, y, window.innerWidth, 1);
+		}
 
 		drawAllFood();
+		drawAllPlayers();
 
 		Game.Player.draw(this.width / 2, this.height / 2);
 	}

@@ -15,7 +15,7 @@ var Game = {}
 	, FOOD_RADIUS = 6
 	, PLAYER_RADIUS = 25
 	, SNAKINESS = 10
-	, VIEW_DISTANCE = 2000
+	, VIEW_DISTANCE = 1000
 	, MAP_SIZE = 4000;
 
 Game.start = function() {
@@ -39,6 +39,18 @@ Game.start = function() {
 				if(v.isInView(e))
 					g.food.push(e);
 			});
+
+			Game.Players.forEach(e => {
+				if(v.isInView(e)) {
+					if(e._id === p._id)
+						return;
+
+					var pl = Object.assign({}, e);
+					delete pl['socket'];
+
+					g.players.push(pl);
+				}
+			})
 
 			p.socket.sendUTF(JSON.stringify({id: 'game', update: g}));
 		})

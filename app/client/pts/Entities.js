@@ -201,6 +201,7 @@ function Food(x, y, color, _id) {
 			this.y += attractionStrength * Math.sin(angle);
 			this.x += attractionStrength * Math.cos(angle);
 			this.radius = (this.radius - 0.25 * attractionStrength) < 0 ? 0.1 : (this.radius - 0.25 * attractionStrength);
+			SpermEvent.emit('food_move', {food: this});
 		}
 
 	}

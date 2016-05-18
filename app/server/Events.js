@@ -20,7 +20,7 @@ module.exports = {
 		p.getSocket().sendUTF(JSON.stringify(packet));
 	},
 
-	move: (data) => {
+	player_move: (data) => {
 		var p = Game.FindPlayer(data.player._id);
 
 		if(p == null)
@@ -28,6 +28,17 @@ module.exports = {
 
 		p.setX(data.player.x);
 		p.setY(data.player.y);
+	},
+
+	food_move: (data) => {
+		var f = Game.FindFood(data.food._id);
+
+		if(f == null)
+			// handle this
+
+		f.setX(data.food.x);
+		f.setY(data.food.y);
+		f.setRadius(data.food.radius);
 	},
 
 	/*
@@ -45,7 +56,7 @@ module.exports = {
 		p.setScore(p.getScore() + 1);
 
 		// specifiy if the food is being chained
-		if(!data.chained)
+		if(p.getScore() === 0 || p.getScore() % 10 === 0)
 			p.addFood(f);
 
 		Game.RemoveFood(f);
