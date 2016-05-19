@@ -34,4 +34,4 @@ gulp.task('watch', function () {
     });
 });
 
-gulp.task('default',['concat', 'compress', 'build', 'watch']);
+gulp.task('default',['concat', 'build', 'watch']);
