@@ -19,7 +19,7 @@ var Game = {}
 	, MAP_SIZE = 4000;
 
 Game.start = function() {
-	for(var j = 0; j < MAP_SIZE / 20; j++) {
+	for(var j = 0; j < MAP_SIZE / 5; j++) {
 		Game.spawnFood();
 	}
 
@@ -155,6 +155,7 @@ function Player(username, socket) {
 	this.score = 0;
 	this.username = username;
 	this.socket = socket;
+	this.impact = [];
 
 	this.getScore = () => this.score;
 	this.getUsername = () => this.username;
@@ -207,7 +208,7 @@ View.prototype.isInView = function(r) {
 * @class Food
 */
 function Food() {
-	Entity.call(this, ~~(Math.random() * MAP_SIZE), ~~(Math.random() * MAP_SIZE), FOOD_RADIUS);
+	Entity.call(this, ~~(Math.random() * 4000), ~~(Math.random() * 4000), FOOD_RADIUS);
 	this.chained = false;
 	this.player = null;
 

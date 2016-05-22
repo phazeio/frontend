@@ -66,6 +66,13 @@ function View() {
 			if(~~j % 100 !== 0)
 				continue;
 
+			if(~~j < 50 && j > -50) {
+				ctx.fillStyle = 'red'
+				ctx.fillRect(x, 0, 3, window.innerHeight);
+				ctx.fillStyle = '#333333';
+				continue;
+			}
+
 			ctx.fillRect(x, 0, 1, window.innerHeight);
 		}
 		
@@ -74,6 +81,13 @@ function View() {
 
 			if(~~j % 100 !== 0)
 				continue;
+
+			if(~~j < 50 && j > -50) {
+				ctx.fillStyle = 'red'
+				ctx.fillRect(0, y, window.innerWidth, 3);
+				ctx.fillStyle = '#333333';
+				continue;
+			}
 
 			ctx.fillRect(0, y, window.innerWidth, 1);
 		}

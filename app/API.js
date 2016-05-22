@@ -89,7 +89,7 @@ function findFood(_id) {
 	var food = null;
 	Game.food.forEach(e => {
 		if(e._id === _id)
-			return food = _id;
+			return food = e;
 	})
 
 	return food;
@@ -102,7 +102,33 @@ function findPlayer(_id) {
 	var player = null;
 	Game.players.forEach(e => {
 		if(e._id === _id)
-			return player = _id;
+			return player = e;
+	})
+
+	return player;
+}
+
+/*
+* find food
+*/
+function afindFood(arr, _id) {
+	var food = null;
+	arr.forEach(e => {
+		if(e._id === _id)
+			return food = e;
+	})
+
+	return food;
+}
+
+/*
+* find player
+*/
+function afindPlayer(arr, _id) {
+	var player = null;
+	arr.forEach(e => {
+		if(e._id === _id)
+			return player = e;
 	})
 
 	return player;
@@ -115,7 +141,6 @@ function drawAllPlayers() {
 	Game.players.forEach(p => {
 		drawPlayer(p);
 		p.food.forEach(f => {
-			console.log(f);
 			f.draw();
 		})
 	});
@@ -125,7 +150,7 @@ function drawAllPlayers() {
 * @param p - Player object
 */
 function drawPlayer(p) {
-		var crds = crds2ctx(p.x, p.y)
+		var crds = crds2ctx(p)
 			, x = crds.x
 			, y = crds.y;
 

@@ -57,11 +57,7 @@ module.exports.startWebSocketServer = function(server) {
       });
 
       connection.on('close', function(reasonCode, description) {
-          for(var j = 0; j < Game.Players.length; j++)
-            if(Game.Players[j].socket = connection)
-              Game.Players.splice(j, 0);
-
-          console.log('WS: Closed connection.');
+        Events['disconnect'](connection);
       });
   });
 }

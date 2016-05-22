@@ -46,8 +46,11 @@ function Player(username, x, y, _id, color) {
 	* move player
 	*/
 	this.move = () => {
-		this.y += this.speed * Math.sin(theta);
-		this.x += this.speed * Math.cos(theta);
+		if(this.y - this.radius + this.speed * Math.sin(theta) > 0)
+			this.y += this.speed * Math.sin(theta);
+
+		if(this.x - this.radius + this.speed * Math.cos(theta) > 0)
+			this.x += this.speed * Math.cos(theta);
 
 		// EMIT MOVE EVENT
 		SpermEvent.emit('player_move_event', {player: this});
