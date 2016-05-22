@@ -33,3 +33,5 @@ gulp.task('watch', function () {
         gulp.run('build');
     });
 });
+
+gulp.task('default',['concat', 'build', 'watch']);
