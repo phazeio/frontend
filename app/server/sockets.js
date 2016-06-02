@@ -29,6 +29,7 @@ module.exports.startWebSocketServer = function(server) {
   }
    
   wss.on('request', function(request) {
+      console.log(Game.Players.length);
       if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin 
         request.reject();
@@ -36,16 +37,20 @@ module.exports.startWebSocketServer = function(server) {
         return;
       }
       
-      var connection = request.accept('echo-protocol', request.origin);
+      var connection = request.accept('echo-protocol', request.origin)
+        , _id = '';
+
       console.log('WS: Connection accepted.');
       connection.on('message', function(message) {
         // console.log(message.utf8Data)
           if (message.type === 'utf8') {
             // try {
               var msg = JSON.parse(message.utf8Data);
-              if(msg.id === 'handshake')
+              if(msg.id === 'handshake') {
                 msg.socket = connection;
-              Events[msg.id](msg);
+                _id = Events[msg.id](msg);
+              } else
+                Events[msg.id](msg);
             // } catch(e) {
             //   console.log('not json message... hmmm')
             // }
@@ -57,7 +62,7 @@ module.exports.startWebSocketServer = function(server) {
       });
 
       connection.on('close', function(reasonCode, description) {
-        Events['disconnect'](connection);
+        Events['disconnect'](_id);
       });
   });
 }

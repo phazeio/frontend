@@ -10,7 +10,6 @@ module.exports = {
 	*/
 	handshake: (data) => {
 		var p = new Player(data.username, data.socket);
-		data.socket['_id'] = p._id;
 		Game.Players.push(p);
 
 		// send stuff back to player
@@ -19,6 +18,8 @@ module.exports = {
 
 		var packet = {id: 'handshake', player: player_copy, map: Game.Map};
 		p.getSocket().sendUTF(JSON.stringify(packet));
+
+		return p._id;
 	},
 
 	player_move: (data) => {
@@ -76,10 +77,10 @@ module.exports = {
 	* disconnect
 	*
 	*/
-	disconnect: (socket) => {
+	disconnect: (_id) => {
           for(var j = 0; j < Game.Players.length; j++)
-            if(Game.Players[j]._id = socket._id) {
-              	Game.Players.splice(j, 0);
+            if(Game.Players[j]._id === _id) {
+              	Game.Players.splice(j, 1);
             }
 
           console.log('WS: Closed connection.');

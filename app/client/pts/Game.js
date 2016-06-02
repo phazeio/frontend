@@ -65,8 +65,8 @@ function startGame(data) {
 	Game.View.resize();
 
 	document.body.onmousemove = function(e) {
-		mouse.x = e.clientX;
-		mouse.y = e.clientY;
+		mouse.x = e.screenX;
+		mouse.y = e.screenY;
 	}
 
 	document.addEventListener('keydown', e => {
