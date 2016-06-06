@@ -34,9 +34,9 @@ function Player(username, x, y, _id, color) {
 	this.score = 0;
 	this.nitrous = false;
 	this.username = username;
-	this.speed = SPEED;
+	// this.speed = SPEED;
 
-	this.getScoreDecrease = () => 0.004 * this.score;
+	this.getScoreDecrease = () => 0.005 * this.score;
 
 	for (var i = 0; i < 360; i++)
 		this.skews[i] = 0;
@@ -53,7 +53,7 @@ function Player(username, x, y, _id, color) {
 			this.x += this.speed * Math.cos(theta);
 
 		// EMIT MOVE EVENT
-		SpermEvent.emit('player_move_event', {player: this});
+		// SpermEvent.emit('player_move_event', {player: this});
 	}
 
 	/* 
@@ -77,6 +77,8 @@ function Player(username, x, y, _id, color) {
 		}
 
 		this.radius = PLAYER_RADIUS + (0.5 * this.score);
+
+		SpermEvent.emit('angle_update', {player: this, angle: theta});
 	}
 
 	/*

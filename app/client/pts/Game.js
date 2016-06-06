@@ -92,8 +92,12 @@ function startGame(data) {
 
 	setInterval(() => {
 		Game.Player.update();
-		Game.Player.move();
+		// Game.Player.move();
 		document.getElementById('score').innerHTML = Game.Player.score;
+
+		$('#player_x').text(~~Game.Player.x);
+		$('#player_y').text(~~Game.Player.y);
+
 	}, 1000 / 60)
 
 	drawInterval = setInterval(() => {

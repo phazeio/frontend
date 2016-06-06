@@ -18,13 +18,18 @@ var Game = {}
 	, VIEW_DISTANCE = 1000
 	, MAP_SIZE = 4000;
 
-Game.start = function() {
+Game.start = function(http) {
+	require('./sockets').startWebSocketServer(http);
+
 	for(var j = 0; j < MAP_SIZE / 5; j++) {
 		Game.spawnFood();
 	}
 
 	setInterval(() => {
 		Game.Players.forEach(p => {
+			p.move();
+			console.log(p.angle);
+
 			var player_copy = Object.assign({}, p);
 			delete player_copy['socket'];
 
@@ -152,18 +157,36 @@ function Entity(x, y, radius, color) {
 function Player(username, socket) {
 	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
 	this.food = [];
+	this.angle = 0;
 	this.score = 0;
 	this.username = username;
 	this.socket = socket;
 	this.impact = [];
+	this.speed = 5;
 
 	this.getScore = () => this.score;
 	this.getUsername = () => this.username;
 	this.getFood = () => this.food;
 	this.getSocket = () => this.socket;
+	this.getAngle = () => this.angle;
 
 	this.setScore = s => this.score = s;
 	this.setUsername = u => this.username = u;
+	this.setAngle = a => this.angle = a;
+
+	/*
+	* move player
+	*/
+	this.move = () => {
+		if(this.y - this.radius + this.speed * Math.sin(this.angle) > 0)
+			this.y += this.speed * Math.sin(this.angle);
+
+		if(this.x - this.radius + this.speed * Math.cos(this.angle) > 0)
+			this.x += this.speed * Math.cos(this.angle);
+
+		// EMIT MOVE EVENT
+		// SpermEvent.emit('player_move_event', {player: this});
+	}
 }
 
 // Player.prototype.getView = () => {

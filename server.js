@@ -29,5 +29,4 @@ http.listen(3000, err => {
 	console.log('Running...')
 })
 
-require('./app/server/sockets').startWebSocketServer(http);
-require('./app/server/Game').Game.start();
+require('./app/server/Game').Game.start(http);

@@ -19,14 +19,19 @@ module.exports = {
 		var packet = {id: 'handshake', player: player_copy, map: Game.Map};
 		p.getSocket().sendUTF(JSON.stringify(packet));
 
-		return p._id;
+		return p;
 	},
 
-	player_move: (data) => {
-		var p = Game.FindPlayer(data.player._id);
+	angle_update: (data, p) => {
+		if(p === null)
+			return;
+		
+		p.setAngle(data.angle);
+	},
 
+	player_move: (data, p) => {
 		// array concurrent modification check
-		if(p == null)
+		if(p === null)
 			return;
 
 		p.setX(data.player.x);
@@ -35,7 +40,7 @@ module.exports = {
 		p.impact = data.player.impact;
 	},
 
-	food_move: (data) => {
+	food_move: (data, p) => {
 		var f = Game.FindFood(data.food._id);
 
 		// array concurrent modification check
@@ -51,13 +56,11 @@ module.exports = {
 	* specifies when a food is eaten + if its chained
 	* specifis what player ate it
 	*/
-	eat: (data) => {
+	eat: (data, p) => {
 		// console.log(data.food)
 		var f = Game.FindFood(data.food._id);
 		if(f === null)
 			return;
-
-		var p = Game.FindPlayer(data.player._id);
 
 		// array concurrent modification check
 		if(p == null)

@@ -12,6 +12,9 @@ var messages = {
 
 	game: function(data) {
 		Game.Player.score = data.update.player.score;
+		Game.Player.x = data.update.player.x;
+		Game.Player.y = data.update.player.y;
+
 		data.update.food.forEach(e => {
 			var f = findFood(e._id);
 			if(f === null && e.chained === false)
@@ -80,4 +83,8 @@ SpermEvent.on('food_move_event', e => {
 
 SpermEvent.on('player_eat_event', e => {
 	ws.send(JSON.stringify({id: 'eat', player: e.player, food: e.food}));
+})
+
+SpermEvent.on('angle_update', e => {
+	ws.send(JSON.stringify({id: 'angle_update', angle: e.angle}));
 })

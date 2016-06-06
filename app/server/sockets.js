@@ -29,7 +29,6 @@ module.exports.startWebSocketServer = function(server) {
   }
    
   wss.on('request', function(request) {
-      console.log(Game.Players.length);
       if (!originIsAllowed(request.origin)) {
         // Make sure we only accept requests from an allowed origin 
         request.reject();
@@ -38,7 +37,7 @@ module.exports.startWebSocketServer = function(server) {
       }
       
       var connection = request.accept('echo-protocol', request.origin)
-        , _id = '';
+        , pPointer;
 
       console.log('WS: Connection accepted.');
       connection.on('message', function(message) {
@@ -48,9 +47,9 @@ module.exports.startWebSocketServer = function(server) {
               var msg = JSON.parse(message.utf8Data);
               if(msg.id === 'handshake') {
                 msg.socket = connection;
-                _id = Events[msg.id](msg);
+                pPointer = Events[msg.id](msg);
               } else
-                Events[msg.id](msg);
+                Events[msg.id](msg, pPointer);
             // } catch(e) {
             //   console.log('not json message... hmmm')
             // }
@@ -62,7 +61,7 @@ module.exports.startWebSocketServer = function(server) {
       });
 
       connection.on('close', function(reasonCode, description) {
-        Events['disconnect'](_id);
+        Events['disconnect'](pPointer._id);
       });
   });
 }
