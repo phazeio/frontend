@@ -1,19 +1,11 @@
 // global variables
-
 var Game = {}
-	, SPEED = 5
-	, FOOD_RADIUS = 6
-	, LINE_WIDTH = 5
-	, PLAYER_RADIUS = 25
-	, SNAKINESS = 10
-	, CTX = null
-	, TURN_SOFTEN = 10
 	, theta = 0
 	, mouse = {
 		x: 0,
 		y: 0
 	}
-	, PLAYER = new Player();
+	, PLAYER = null;
 
 // intervals
 var drawInterval
@@ -73,7 +65,7 @@ function startGame(data) {
 		if(e.keyCode !== 32)
 			return;
 
-		Game.Player.speed = SPEED * 2;
+		Game.Player.speed = Constants.SPEED * 2;
 		Game.Player.nitrous = true;
 	})
 
@@ -81,7 +73,7 @@ function startGame(data) {
 		if(e.keyCode !== 32)
 			return;
 
-		Game.Player.speed = SPEED;
+		Game.Player.speed = Constants.SPEED;
 		Game.Player.nitrous = false;
 	})
 

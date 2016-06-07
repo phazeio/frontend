@@ -27,7 +27,7 @@ function Entity(x, y, radius, _id, color) {
 * Player Class
 */
 function Player(username, x, y, _id, color) {
-	Entity.call(this, x, y, PLAYER_RADIUS, _id, color);
+	Entity.call(this, x, y, Constants.PLAYER_RADIUS, _id, color);
 	this.food = [];
 	this.skews = [];
 	this.impact = [];
@@ -70,13 +70,13 @@ function Player(username, x, y, _id, color) {
 
 		if (dif > Math.PI) {
 			dif = (2 * Math.PI) - dif;
-			theta += ((Math.abs(theta - newTheta) > Math.PI && newTheta < Math.PI) ? dif / TURN_SOFTEN : -1 * dif / TURN_SOFTEN) + Math.PI * 2;
+			theta += ((Math.abs(theta - newTheta) > Math.PI && newTheta < Math.PI) ? dif / Constants.TURN_SOFTEN : -1 * dif / Constants.TURN_SOFTEN) + Math.PI * 2;
 			theta %= Math.PI * 2;
 		} else {
-			theta += newTheta > theta ? dif / TURN_SOFTEN : -1 * dif / TURN_SOFTEN;
+			theta += newTheta > theta ? dif / Constants.TURN_SOFTEN : -1 * dif / Constants.TURN_SOFTEN;
 		}
 
-		this.radius = PLAYER_RADIUS + (0.5 * this.score);
+		this.radius = Constants.PLAYER_RADIUS + (0.5 * this.score);
 
 		SpermEvent.emit('angle_update', {player: this, angle: theta});
 	}
@@ -117,7 +117,7 @@ function Player(username, x, y, _id, color) {
 		ctx.shadowOffsetY = 0;
 		ctx.fillStyle = this.color;
 		ctx.fill();
-		ctx.lineWidth = LINE_WIDTH;
+		ctx.lineWidth = Constants.LINE_WIDTH;
 		ctx.strokeStyle = 'rgb(' + h2r(this.color).r + ', ' + h2r(this.color).g + ', ' + ((h2r(this.color).b + 15) > 255 ? 255 : (h2r(this.color).b + 15)) + ')';
 		ctx.closePath();
 		ctx.stroke();
@@ -148,10 +148,10 @@ function Player(username, x, y, _id, color) {
 *
 */
 function Food(x, y, color, _id) {
-	Entity.call(this, x, y, FOOD_RADIUS, _id, color);
+	Entity.call(this, x, y, Constants.FOOD_RADIUS, _id, color);
 
 	this.color = randomColor();
-	this.radius = FOOD_RADIUS * 0.2;
+	this.radius = Constants.FOOD_RADIUS * 0.2;
 	this.chained = false;
 
 	this.draw = function() {
@@ -217,7 +217,7 @@ function Food(x, y, color, _id) {
 	this.followLeader = function(o) {
 		var dist = getDistance(o, this)
 			, distThreshold = 20
-			, attractionStrength = distThreshold - dist - SNAKINESS
+			, attractionStrength = distThreshold - dist - Constants.SNAKINESS
 			, angle = angleBetween(this, o);
 
 		this.y -= attractionStrength * Math.sin(angle);
@@ -229,9 +229,9 @@ function Food(x, y, color, _id) {
 	*/
 	this.fadeIn = function (rate) {
 		if (this.chained)
-			this.radius = this.radius < FOOD_RADIUS + (Game.Player.score * 0.2) ? this.radius + rate : FOOD_RADIUS + (Game.Player.score * 0.2);
+			this.radius = this.radius < Constants.FOOD_RADIUS + (Game.Player.score * 0.2) ? this.radius + rate : Constants.FOOD_RADIUS + (Game.Player.score * 0.2);
 		else
-			this.radius = this.radius < FOOD_RADIUS ? this.radius + rate : FOOD_RADIUS;
+			this.radius = this.radius < Constants.FOOD_RADIUS ? this.radius + rate : Constants.FOOD_RADIUS;
 	}
 
 }

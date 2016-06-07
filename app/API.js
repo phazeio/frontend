@@ -1,3 +1,13 @@
+var Constants = {SPEED: 5
+	, FOOD_RADIUS: 6
+	, LINE_WIDTH: 5
+	, PLAYER_RADIUS: 25
+	, SNAKINESS: 10
+	, TURN_SOFTEN: 10
+	, SPEED: 5
+	, VIEW_DISTANCE: 1000
+	, MAP_SIZE: 4000};
+
 /*
 * @param o - an Entity object
 *
@@ -210,7 +220,7 @@ function drawAllFood() {
 		Game.food[i].draw();
 		if (Game.food[i].isEaten()) {
 			Game.food[i].color = Game.Player.color;
-			Game.food[i].radius = FOOD_RADIUS * 0.2;
+			Game.food[i].radius = Constants.FOOD_RADIUS * 0.2;
 			Game.food[i].chained = true;
 
 			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
@@ -232,6 +242,7 @@ function drawAllFood() {
 }
 
 try {
+	module.exports.Constants = Constants;
 	module.exports.angleBetween = angleBetween;
 	module.exports.sineCircleXYatAngle = sineCircleXYatAngle;
 	module.exports.getDistance = getDistance;

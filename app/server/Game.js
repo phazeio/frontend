@@ -10,26 +10,19 @@ var createObjectID = (num) => {
 		return str;
 	}
 
-var Game = {}
-	, SPEED = 5
-	, FOOD_RADIUS = 6
-	, PLAYER_RADIUS = 25
-	, SNAKINESS = 10
-	, VIEW_DISTANCE = 1000
-	, MAP_SIZE = 4000;
+var Game = {};
+var Constants = API.Constants;
 
 Game.start = function(http) {
 	require('./sockets').startWebSocketServer(http);
 
-	for(var j = 0; j < MAP_SIZE / 5; j++) {
+	for(var j = 0; j < Constants.MAP_SIZE / 5; j++) {
 		Game.spawnFood();
 	}
 
 	setInterval(() => {
 		Game.Players.forEach(p => {
 			p.move();
-			console.log(p.angle);
-
 			var player_copy = Object.assign({}, p);
 			delete player_copy['socket'];
 
@@ -65,7 +58,7 @@ Game.start = function(http) {
 // array of entities
 Game.Food = [];
 Game.Players = [];
-Game.Map = new Map(MAP_SIZE, MAP_SIZE);
+Game.Map = new Map(Constants.MAP_SIZE, Constants.MAP_SIZE);
 Game.Leaderboard = [];
 
 Game.FindFood = (_id) => {
@@ -155,7 +148,7 @@ function Entity(x, y, radius, color) {
 * @class Player
 */
 function Player(username, socket) {
-	Entity.call(this, ~~((Math.random() * 300) + MAP_SIZE / 3), ~~((Math.random() * 300) + MAP_SIZE / 3), PLAYER_RADIUS);
+	Entity.call(this, ~~((Math.random() * 300) + Constants.MAP_SIZE / 3), ~~((Math.random() * 300) + Constants.MAP_SIZE / 3), Constants.PLAYER_RADIUS);
 	this.food = [];
 	this.angle = 0;
 	this.score = 0;
@@ -213,7 +206,7 @@ function View(tY, bY, rX, lX) {
 
 
 function getView(e) {
-	return new View(e.y - VIEW_DISTANCE, e.y + VIEW_DISTANCE, e.x + VIEW_DISTANCE, e.x - VIEW_DISTANCE);
+	return new View(e.y - Constants.VIEW_DISTANCE, e.y + Constants.VIEW_DISTANCE, e.x + Constants.VIEW_DISTANCE, e.x - Constants.VIEW_DISTANCE);
 }
 
 /*
@@ -231,7 +224,7 @@ View.prototype.isInView = function(r) {
 * @class Food
 */
 function Food() {
-	Entity.call(this, ~~(Math.random() * 4000), ~~(Math.random() * 4000), FOOD_RADIUS);
+	Entity.call(this, ~~(Math.random() * 4000), ~~(Math.random() * 4000), Constants.FOOD_RADIUS);
 	this.chained = false;
 	this.player = null;
 

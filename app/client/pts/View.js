@@ -61,35 +61,23 @@ function View() {
 		ctx.shadowBlur = 5;
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
-		for(var j = Game.Player.x - 1000; j < Game.Player.x + 1000; j++) {
+
+		var start = Math.floor((~~Game.Player.x - Constants.VIEW_DISTANCE) / 100) * 100
+			, stop = start + 2 * Constants.VIEW_DISTANCE;
+
+		for (var j = start; j < stop; j+=100) {
+			ctx.fillStyle = (j === 0 || j === Game.Map.width) ? 'red' : '#333333';
 			var x = Game.View.width / 2 - (Game.Player.x - j);
-			if(~~j % 100 !== 0)
-				continue;
-
-			if(~~j < 50 && j > -50) {
-				ctx.fillStyle = 'red'
-				ctx.fillRect(x, 0, 3, window.innerHeight);
-				ctx.fillStyle = '#333333';
-				continue;
-			}
-
-			ctx.fillRect(x, 0, 1, window.innerHeight);
+			ctx.fillRect(x, 0, 3, window.innerHeight);
 		}
-		
-		for(var j = Game.Player.y - 1000; j < Game.Player.y + 1000; j++) {
+
+		start = Math.floor((~~Game.Player.y - Constants.VIEW_DISTANCE) / 100) * 100
+			, stop = start + 2 * Constants.VIEW_DISTANCE;
+
+		for (var j = start; j < stop; j+=100) {
+			ctx.fillStyle = (j === 0 || j === Game.Map.height) ? 'red' : '#333333';
 			var y = Game.View.height / 2 - (Game.Player.y - j);
-
-			if(~~j % 100 !== 0)
-				continue;
-
-			if(~~j < 50 && j > -50) {
-				ctx.fillStyle = 'red'
-				ctx.fillRect(0, y, window.innerWidth, 3);
-				ctx.fillStyle = '#333333';
-				continue;
-			}
-
-			ctx.fillRect(0, y, window.innerWidth, 1);
+			ctx.fillRect(0, y, window.innerWidth, 3);
 		}
 
 		drawAllFood();
