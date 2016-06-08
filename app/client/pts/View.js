@@ -62,7 +62,7 @@ function View() {
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
 
-		var start = Math.floor((~~Game.Player.x - Constants.VIEW_DISTANCE) / 100) * 100
+		var start =  ~~((Game.Player.x - Constants.VIEW_DISTANCE) / 100) * 100
 			, stop = start + 2 * Constants.VIEW_DISTANCE;
 
 		for (var j = start; j < stop; j+=100) {
@@ -71,7 +71,7 @@ function View() {
 			ctx.fillRect(x, 0, 3, window.innerHeight);
 		}
 
-		start = Math.floor((~~Game.Player.y - Constants.VIEW_DISTANCE) / 100) * 100
+		start = ~~((Game.Player.y - Constants.VIEW_DISTANCE) / 100) * 100
 			, stop = start + 2 * Constants.VIEW_DISTANCE;
 
 		for (var j = start; j < stop; j+=100) {
