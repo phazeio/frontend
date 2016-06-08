@@ -93,15 +93,17 @@ function Player(username, x, y, _id, color) {
 		ctx.beginPath();
 
 		for (var i = 0; i < 360; i++)
-			this.skews[i] = round(this.skews[i] / 1.1, 2);
+			this.skews[i] = round(this.skews[i] / 1.1, 1);
 
 
 		for (var i = 0; i < 360; i++) 
 			if (this.impact[i]) {
 				var radiusOfImpact = ~~(340 * Constants.FOOD_RADIUS / this.radius / Math.PI);
 				for (var j = 0; j < radiusOfImpact * 2; j++) 
-					this.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += round(this.impact[i] / 5 * Math.sin(j * Math.PI / radiusOfImpact / 2), 2);
+					this.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += round(this.impact[i] / 5 * Math.sin(j * Math.PI / radiusOfImpact / 2), 1);
 			}
+
+		console.log(this.skews);
 
 		this.impact = [];
 

@@ -43,7 +43,7 @@ function toDegrees(n) {
 }
 
 function round(value, decimals) {
-    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+    return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 /*
