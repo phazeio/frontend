@@ -29,17 +29,6 @@ module.exports = {
 		p.setAngle(data.angle);
 	},
 
-	player_move: (data, p) => {
-		// array concurrent modification check
-		if(p === null)
-			return;
-
-		p.setX(data.player.x);
-		p.setY(data.player.y);
-		p.setRadius(data.player.radius);
-		p.impact = data.player.impact;
-	},
-
 	food_move: (data, p) => {
 		var f = Game.FindFood(data.food._id);
 

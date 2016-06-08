@@ -46,14 +46,13 @@ function Player(username, x, y, _id, color) {
 	* move player
 	*/
 	this.move = () => {
-		if(this.y - this.radius + this.speed * Math.sin(theta) > 0)
+
+		console.log(this.x, this.y);
+		if(this.y - this.radius > 0 && this.y + this.radius < Constants.MAP_SIZE)
 			this.y += this.speed * Math.sin(theta);
 
-		if(this.x - this.radius + this.speed * Math.cos(theta) > 0)
+		if(this.x - this.radius > 0 && this.x + this.radius < Constants.MAP_SIZE)
 			this.x += this.speed * Math.cos(theta);
-
-		// EMIT MOVE EVENT
-		// SpermEvent.emit('player_move_event', {player: this});
 	}
 
 	/* 
@@ -87,20 +86,22 @@ function Player(username, x, y, _id, color) {
 	this.draw = (x, y) => {
 
 		var amp = 1.2,
-			sineCount = Math.floor(Math.random() * 5) + 3,
+			sineCount = ~~(Math.random() * 5) + 3,
 			start = 0,
 			stop = start + 360;
 
 		ctx.beginPath();
 
 		for (var i = 0; i < 360; i++)
-			this.skews[i] /= 1.1;
+			this.skews[i] = round(this.skews[i] / 1.1, 2);
 
 
 		for (var i = 0; i < 360; i++) 
-			if (this.impact[i]) 
-				for (var j = 0; j < this.impact[i] * 2; j++) 
-					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] += this.impact[i] * Math.sqrt(Game.Player.radius) / 40 * Math.sin(j * Math.PI / this.impact[i] / 2);
+			if (this.impact[i]) {
+				var radiusOfImpact = ~~(340 * Constants.FOOD_RADIUS / this.radius / Math.PI);
+				for (var j = 0; j < radiusOfImpact * 2; j++) 
+					this.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += round(this.impact[i] / 5 * Math.sin(j * Math.PI / radiusOfImpact / 2), 2);
+			}
 
 		this.impact = [];
 
@@ -133,13 +134,12 @@ function Player(username, x, y, _id, color) {
 	}
 
 	this.hasFood = function(_id) {
-		var r = false;
 		this.food.forEach(e => {
 			if(e._id === _id)
-				return r = true;
+				return true;
 		})
 
-		return r;
+		return false;
 	}
 }
 

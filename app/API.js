@@ -4,7 +4,7 @@ var Constants = {SPEED: 5
 	, PLAYER_RADIUS: 25
 	, SNAKINESS: 10
 	, TURN_SOFTEN: 10
-	, SPEED: 5
+	, SPEED: 0.1
 	, VIEW_DISTANCE: 1000
 	, MAP_SIZE: 4000};
 
@@ -40,6 +40,10 @@ function sineCircleXYatAngle(cx, cy, radius, amplitude, angle, sineCount){
 
 function toDegrees(n) {
 	return n * 180 / Math.PI;
+}
+
+function round(value, decimals) {
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 }
 
 /*
@@ -175,10 +179,13 @@ function drawPlayer(p) {
 			p.skews[i] /= 1.1;
 
 
+		console.log('radius');
+
 		for (var i = 0; i < 360; i++) 
-			if (p.impact[i]) 
-				for (var j = 0; j < p.impact[i] * 2; j++) 
-					p.skews[((~~(i - p.impact[i] + j)) + 360) % 360] += p.impact[i] * Math.sqrt(Game.Player.radius) / 40 * Math.sin(j * Math.PI / p.impact[i] / 2);
+			if (p.impact[i])
+				var radiusOfImpact = 2 * Constants.FOOD_RADIUS / p.radius;
+				for (var j = 0; j < radiusOfImpact * 2; j++) 
+					p.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += p.impact[i] * Math.sin(j * Math.PI / radiusOfImpact / 2);
 
 		p.impact = [];
 

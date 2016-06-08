@@ -224,7 +224,7 @@ View.prototype.isInView = function(r) {
 * @class Food
 */
 function Food() {
-	Entity.call(this, ~~(Math.random() * 4000), ~~(Math.random() * 4000), Constants.FOOD_RADIUS);
+	Entity.call(this, ~~(Math.random() * Constants.MAP_SIZE), ~~(Math.random() * Constants.MAP_SIZE), Constants.FOOD_RADIUS);
 	this.chained = false;
 	this.player = null;
 
