@@ -28,7 +28,6 @@ function Entity(x, y, radius, _id, color) {
 */
 function Player(username, x, y, _id, color) {
 	Entity.call(this, x, y, Constants.PLAYER_RADIUS, _id, color);
-	this.food = [];
 	this.skews = [];
 	this.impact = [];
 	this.score = 0;
@@ -60,10 +59,9 @@ function Player(username, x, y, _id, color) {
 	*/
 	this.update = () => {
 
-		var newTheta = angleBetween(crds2ctx({
-			x: this.x,
-			y: this.y})
-			, mouse);
+		var newTheta = angleBetween(crds2ctx({x: this.x, y: this.y})
+			, {x: mouse.x - this.radius * 2, y: mouse.y - this.radius * 2});
+
 
 		var dif = Math.abs(newTheta - theta);
 
@@ -77,6 +75,8 @@ function Player(username, x, y, _id, color) {
 
 		this.radius = Constants.PLAYER_RADIUS + (0.5 * this.score);
 
+		console.log(round(theta * 180 / Math.PI, 2));
+
 		SpermEvent.emit('angle_update', {player: this, angle: theta});
 	}
 
@@ -88,7 +88,7 @@ function Player(username, x, y, _id, color) {
 		var amp = 1.2,
 			sineCount = ~~(Math.random() * 5) + 3,
 			start = 0,
-			stop = start + 360;
+			stop = 360;
 
 		ctx.beginPath();
 
@@ -102,8 +102,6 @@ function Player(username, x, y, _id, color) {
 				for (var j = 0; j < radiusOfImpact * 2; j++) 
 					this.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += round(this.impact[i] / 5 * Math.sin(j * Math.PI / radiusOfImpact / 2), 1);
 			}
-
-		console.log(this.skews);
 
 		this.impact = [];
 
@@ -135,14 +133,6 @@ function Player(username, x, y, _id, color) {
 		ctx.fillText(this.username, window.outerWidth / 2, window.outerHeight / 2 + this.radius + 20); 
 	}
 
-	this.hasFood = function(_id) {
-		this.food.forEach(e => {
-			if(e._id === _id)
-				return true;
-		})
-
-		return false;
-	}
 }
 
 /**
@@ -151,10 +141,8 @@ function Player(username, x, y, _id, color) {
 */
 function Food(x, y, color, _id) {
 	Entity.call(this, x, y, Constants.FOOD_RADIUS, _id, color);
-
 	this.color = randomColor();
 	this.radius = Constants.FOOD_RADIUS * 0.2;
-	this.chained = false;
 
 	this.draw = function() {
 		var r = h2r(this.color)
@@ -181,10 +169,6 @@ function Food(x, y, color, _id) {
 		ctx.closePath();
 		ctx.fill();
 	}
-
-
-
-
 
 	this.isEaten = function() {
 		return areOverlapping(this, Game.Player, 2);
@@ -213,26 +197,10 @@ function Food(x, y, color, _id) {
 
 	}
 
-	/* 
-	*follow leader when chained
-	*/
-	this.followLeader = function(o) {
-		var dist = getDistance(o, this)
-			, distThreshold = 20
-			, attractionStrength = distThreshold - dist - Constants.SNAKINESS
-			, angle = angleBetween(this, o);
-
-		this.y -= attractionStrength * Math.sin(angle);
-		this.x -= attractionStrength * Math.cos(angle);
-	}
-
 	/*
 	*slowly increase food radius
 	*/
 	this.fadeIn = function (rate) {
-		if (this.chained)
-			this.radius = this.radius < Constants.FOOD_RADIUS + (Game.Player.score * 0.2) ? this.radius + rate : Constants.FOOD_RADIUS + (Game.Player.score * 0.2);
-		else
 			this.radius = this.radius < Constants.FOOD_RADIUS ? this.radius + rate : Constants.FOOD_RADIUS;
 	}
 

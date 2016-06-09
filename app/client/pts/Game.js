@@ -57,8 +57,8 @@ function startGame(data) {
 	Game.View.resize();
 
 	document.body.onmousemove = function(e) {
-		mouse.x = e.screenX;
-		mouse.y = e.screenY;
+		mouse.x = e.clientX;
+		mouse.y = e.clientY;
 	}
 
 	document.addEventListener('keydown', e => {
@@ -84,7 +84,7 @@ function startGame(data) {
 
 	setInterval(() => {
 		Game.Player.update();
-		// Game.Player.move();
+
 		document.getElementById('score').innerHTML = Game.Player.score;
 
 		$('#player_x').text(~~Game.Player.x);

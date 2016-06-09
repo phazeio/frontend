@@ -21,10 +21,10 @@ function crds2ctx(o) {
 }
 
 /*
-* @param start -
-* @param end - 
+* @param start - an Entity object or mouse object
+* @param end - an Entity object or mouse object
 *
-* @return object - 
+* @return object - the angle (in radians) on [0, 2pi] from the start object to the end object
 */	
 function angleBetween(start, end) {
 	var y = end.y - start.y,
@@ -42,6 +42,13 @@ function toDegrees(n) {
 	return n * 180 / Math.PI;
 }
 
+
+/*
+* @param value - a numeric value
+* @param decimals - the desired number of trailing digits
+*
+* @return object - the number rounded to the specified number of trailing digits
+*/	
 function round(value, decimals) {
     return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
@@ -226,24 +233,9 @@ function drawAllFood() {
 		Game.food[i].checkForce(Game.Player);
 		Game.food[i].draw();
 		if (Game.food[i].isEaten()) {
-			Game.food[i].color = Game.Player.color;
-			Game.food[i].radius = Constants.FOOD_RADIUS * 0.2;
-			Game.food[i].chained = true;
-
 			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
 			Game.food.splice(i, 1);
 			i--;
-		}
-	}
-
-	if (Game.Player.food[0]) {
-		Game.Player.food[0].followLeader(Game.Player);
-		Game.Player.food[0].fadeIn(0.1);
-		Game.Player.food[0].draw();
-		for (var j = 1; j < Game.Player.food.length; j++) {
-			Game.Player.food[j].followLeader(Game.Player.food[j - 1]);
-			Game.Player.food[j].fadeIn(0.1);
-			Game.Player.food[j].draw();	
 		}
 	}
 }
