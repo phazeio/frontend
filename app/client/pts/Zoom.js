@@ -3,8 +3,6 @@ function Zoom() {
 	this.relWidth = document.documentElement.clientWidth;
 
 	this.getZoom = () => {
-		console.log(this.relWidth / this.baseWidth);
-		console.log(this.relWidth / this.baseWidth - Game.Player.getScoreDecrease());
 		return (this.relWidth / this.baseWidth)
 	};
 

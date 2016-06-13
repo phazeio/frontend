@@ -30,7 +30,7 @@ module.exports.startWebSocketServer = function(server) {
    
   wss.on('request', function(request) {
       if (!originIsAllowed(request.origin)) {
-        // Make sure we only accept requests from an allowed origin 
+        // Make sure we only accept requests from an allowed origin
         request.reject();
         console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
         return;
