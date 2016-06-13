@@ -72,19 +72,3 @@ var messages = {
 		// player disconnected
 	}
 }
-
-SpermEvent.on('player_move_event', e => {
-	ws.send(JSON.stringify({id: 'player_move', player: e.player}));
-})
-
-SpermEvent.on('food_move_event', e => {
-	ws.send(JSON.stringify({id: 'food_move', food: e.food}));
-})
-
-SpermEvent.on('player_eat_event', e => {
-	ws.send(JSON.stringify({id: 'eat', player: e.player, food: e.food}));
-})
-
-SpermEvent.on('angle_update', e => {
-	ws.send(JSON.stringify({id: 'angle_update', angle: e.angle}));
-})

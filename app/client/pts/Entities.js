@@ -27,8 +27,7 @@ function Entity(x, y, radius, _id, color) {
 * Player Class
 */
 function Player(username, x, y, _id, color) {
-	Entity.call(this, x, y, PLAYER_RADIUS, _id, color);
-	this.food = [];
+	Entity.call(this, x, y, Constants.PLAYER_RADIUS, _id, color);
 	this.skews = [];
 	this.impact = [];
 	this.score = 0;
@@ -46,14 +45,13 @@ function Player(username, x, y, _id, color) {
 	* move player
 	*/
 	this.move = () => {
-		if(this.y - this.radius + this.speed * Math.sin(theta) > 0)
+
+		console.log(this.x, this.y);
+		if(this.y - this.radius > 0 && this.y + this.radius < Constants.MAP_SIZE)
 			this.y += this.speed * Math.sin(theta);
 
-		if(this.x - this.radius + this.speed * Math.cos(theta) > 0)
+		if(this.x - this.radius > 0 && this.x + this.radius < Constants.MAP_SIZE)
 			this.x += this.speed * Math.cos(theta);
-
-		// EMIT MOVE EVENT
-		// SpermEvent.emit('player_move_event', {player: this});
 	}
 
 	/* 
@@ -61,22 +59,23 @@ function Player(username, x, y, _id, color) {
 	*/
 	this.update = () => {
 
-		var newTheta = angleBetween(crds2ctx({
-			x: this.x,
-			y: this.y})
-			, mouse);
+		var newTheta = angleBetween(crds2ctx({x: this.x, y: this.y})
+			, {x: mouse.x - this.radius * 2, y: mouse.y - this.radius * 2});
+
 
 		var dif = Math.abs(newTheta - theta);
 
 		if (dif > Math.PI) {
 			dif = (2 * Math.PI) - dif;
-			theta += ((Math.abs(theta - newTheta) > Math.PI && newTheta < Math.PI) ? dif / TURN_SOFTEN : -1 * dif / TURN_SOFTEN) + Math.PI * 2;
+			theta += ((Math.abs(theta - newTheta) > Math.PI && newTheta < Math.PI) ? dif / Constants.TURN_SOFTEN : -1 * dif / Constants.TURN_SOFTEN) + Math.PI * 2;
 			theta %= Math.PI * 2;
 		} else {
-			theta += newTheta > theta ? dif / TURN_SOFTEN : -1 * dif / TURN_SOFTEN;
+			theta += newTheta > theta ? dif / Constants.TURN_SOFTEN : -1 * dif / Constants.TURN_SOFTEN;
 		}
 
-		this.radius = PLAYER_RADIUS + (0.5 * this.score);
+		this.radius = Constants.PLAYER_RADIUS + (0.5 * this.score);
+
+		console.log(round(theta * 180 / Math.PI, 2));
 
 		SpermEvent.emit('angle_update', {player: this, angle: theta});
 	}
@@ -87,20 +86,22 @@ function Player(username, x, y, _id, color) {
 	this.draw = (x, y) => {
 
 		var amp = 1.2,
-			sineCount = Math.floor(Math.random() * 5) + 3,
+			sineCount = ~~(Math.random() * 5) + 3,
 			start = 0,
-			stop = start + 360;
+			stop = 360;
 
 		ctx.beginPath();
 
 		for (var i = 0; i < 360; i++)
-			this.skews[i] /= 1.1;
+			this.skews[i] = round(this.skews[i] / 1.1, 1);
 
 
 		for (var i = 0; i < 360; i++) 
-			if (this.impact[i]) 
-				for (var j = 0; j < this.impact[i] * 2; j++) 
-					this.skews[((~~(i - this.impact[i] + j)) + 360) % 360] += this.impact[i] * Math.sqrt(Game.Player.radius) / 40 * Math.sin(j * Math.PI / this.impact[i] / 2);
+			if (this.impact[i]) {
+				var radiusOfImpact = ~~(340 * Constants.FOOD_RADIUS / this.radius / Math.PI);
+				for (var j = 0; j < radiusOfImpact * 2; j++) 
+					this.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += round(this.impact[i] / 5 * Math.sin(j * Math.PI / radiusOfImpact / 2), 1);
+			}
 
 		this.impact = [];
 
@@ -117,7 +118,7 @@ function Player(username, x, y, _id, color) {
 		ctx.shadowOffsetY = 0;
 		ctx.fillStyle = this.color;
 		ctx.fill();
-		ctx.lineWidth = LINE_WIDTH;
+		ctx.lineWidth = Constants.LINE_WIDTH;
 		ctx.strokeStyle = 'rgb(' + h2r(this.color).r + ', ' + h2r(this.color).g + ', ' + ((h2r(this.color).b + 15) > 255 ? 255 : (h2r(this.color).b + 15)) + ')';
 		ctx.closePath();
 		ctx.stroke();
@@ -132,15 +133,6 @@ function Player(username, x, y, _id, color) {
 		ctx.fillText(this.username, window.outerWidth / 2, window.outerHeight / 2 + this.radius + 20); 
 	}
 
-	this.hasFood = function(_id) {
-		var r = false;
-		this.food.forEach(e => {
-			if(e._id === _id)
-				return r = true;
-		})
-
-		return r;
-	}
 }
 
 /**
@@ -148,11 +140,9 @@ function Player(username, x, y, _id, color) {
 *
 */
 function Food(x, y, color, _id) {
-	Entity.call(this, x, y, FOOD_RADIUS, _id, color);
-
+	Entity.call(this, x, y, Constants.FOOD_RADIUS, _id, color);
 	this.color = randomColor();
-	this.radius = FOOD_RADIUS * 0.2;
-	this.chained = false;
+	this.radius = Constants.FOOD_RADIUS * 0.2;
 
 	this.draw = function() {
 		var r = h2r(this.color)
@@ -179,10 +169,6 @@ function Food(x, y, color, _id) {
 		ctx.closePath();
 		ctx.fill();
 	}
-
-
-
-
 
 	this.isEaten = function() {
 		return areOverlapping(this, Game.Player, 2);
@@ -211,27 +197,11 @@ function Food(x, y, color, _id) {
 
 	}
 
-	/* 
-	*follow leader when chained
-	*/
-	this.followLeader = function(o) {
-		var dist = getDistance(o, this)
-			, distThreshold = 20
-			, attractionStrength = distThreshold - dist - SNAKINESS
-			, angle = angleBetween(this, o);
-
-		this.y -= attractionStrength * Math.sin(angle);
-		this.x -= attractionStrength * Math.cos(angle);
-	}
-
 	/*
 	*slowly increase food radius
 	*/
 	this.fadeIn = function (rate) {
-		if (this.chained)
-			this.radius = this.radius < FOOD_RADIUS + (Game.Player.score * 0.2) ? this.radius + rate : FOOD_RADIUS + (Game.Player.score * 0.2);
-		else
-			this.radius = this.radius < FOOD_RADIUS ? this.radius + rate : FOOD_RADIUS;
+			this.radius = this.radius < Constants.FOOD_RADIUS ? this.radius + rate : Constants.FOOD_RADIUS;
 	}
 
 }

@@ -1,3 +1,13 @@
+var Constants = {SPEED: 5
+	, FOOD_RADIUS: 6
+	, LINE_WIDTH: 5
+	, PLAYER_RADIUS: 25
+	, SNAKINESS: 10
+	, TURN_SOFTEN: 10
+	, SPEED: 0.1
+	, VIEW_DISTANCE: 1000
+	, MAP_SIZE: 4000};
+
 /*
 * @param o - an Entity object
 *
@@ -11,10 +21,10 @@ function crds2ctx(o) {
 }
 
 /*
-* @param start -
-* @param end - 
+* @param start - an Entity object or mouse object
+* @param end - an Entity object or mouse object
 *
-* @return object - 
+* @return object - the angle (in radians) on [0, 2pi] from the start object to the end object
 */	
 function angleBetween(start, end) {
 	var y = end.y - start.y,
@@ -30,6 +40,17 @@ function sineCircleXYatAngle(cx, cy, radius, amplitude, angle, sineCount){
 
 function toDegrees(n) {
 	return n * 180 / Math.PI;
+}
+
+
+/*
+* @param value - a numeric value
+* @param decimals - the desired number of trailing digits
+*
+* @return object - the number rounded to the specified number of trailing digits
+*/	
+function round(value, decimals) {
+    return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 /*
@@ -165,10 +186,13 @@ function drawPlayer(p) {
 			p.skews[i] /= 1.1;
 
 
+		console.log('radius');
+
 		for (var i = 0; i < 360; i++) 
-			if (p.impact[i]) 
-				for (var j = 0; j < p.impact[i] * 2; j++) 
-					p.skews[((~~(i - p.impact[i] + j)) + 360) % 360] += p.impact[i] * Math.sqrt(Game.Player.radius) / 40 * Math.sin(j * Math.PI / p.impact[i] / 2);
+			if (p.impact[i])
+				var radiusOfImpact = 2 * Constants.FOOD_RADIUS / p.radius;
+				for (var j = 0; j < radiusOfImpact * 2; j++) 
+					p.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += p.impact[i] * Math.sin(j * Math.PI / radiusOfImpact / 2);
 
 		p.impact = [];
 
@@ -209,29 +233,15 @@ function drawAllFood() {
 		Game.food[i].checkForce(Game.Player);
 		Game.food[i].draw();
 		if (Game.food[i].isEaten()) {
-			Game.food[i].color = Game.Player.color;
-			Game.food[i].radius = FOOD_RADIUS * 0.2;
-			Game.food[i].chained = true;
-
 			SpermEvent.emit('player_eat_event', {player: Game.Player, food: Game.food[i]});
 			Game.food.splice(i, 1);
 			i--;
 		}
 	}
-
-	if (Game.Player.food[0]) {
-		Game.Player.food[0].followLeader(Game.Player);
-		Game.Player.food[0].fadeIn(0.1);
-		Game.Player.food[0].draw();
-		for (var j = 1; j < Game.Player.food.length; j++) {
-			Game.Player.food[j].followLeader(Game.Player.food[j - 1]);
-			Game.Player.food[j].fadeIn(0.1);
-			Game.Player.food[j].draw();	
-		}
-	}
 }
 
 try {
+	module.exports.Constants = Constants;
 	module.exports.angleBetween = angleBetween;
 	module.exports.sineCircleXYatAngle = sineCircleXYatAngle;
 	module.exports.getDistance = getDistance;
