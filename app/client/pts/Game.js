@@ -4,12 +4,15 @@ var Game = {}
 	, mouse = {
 		x: 0,
 		y: 0
-	}
-	, PLAYER = null;
+	};
 
 // intervals
 var drawInterval
-	, spawnFoodInterval;
+	, spawnFoodInterval
+	, garbageInterval
+	, updateInterval;
+
+connectToSocketServer();
 
 /**
 * Map Class
@@ -39,6 +42,7 @@ function sendHandshake(username) {
 }
 
 function startGame(data) {
+	console.log('ok')
 
 	Game.Map = new Map(data.map.width, data.map.height);
 	Game.View = new View();
@@ -49,7 +53,11 @@ function startGame(data) {
 		data.player.color);
 	Game.Zoom = new Zoom();
 	Game.food = [];
+	Game.shards = [];
 	Game.players = [];
+	Game.Leaderboard = [];
+	Game.Alerts = [];
+	Game.top = 1;
 
 	// Game.getSNAKINESS = () => SNAKINESS * this.Zoom.getZoom();
 	// Game.getLINE_WIDTH = () => LINE_WIDTH * this.Zoom.getZoom();
@@ -61,20 +69,13 @@ function startGame(data) {
 		mouse.y = e.clientY;
 	}
 
-	document.addEventListener('keydown', e => {
-		if(e.keyCode !== 32)
-			return;
-
-		Game.Player.speed = Constants.SPEED * 2;
-		Game.Player.nitrous = true;
-	})
-
 	document.addEventListener('keyup', e => {
 		if(e.keyCode !== 32)
 			return;
 
-		Game.Player.speed = Constants.SPEED;
-		Game.Player.nitrous = false;
+		// shoot shard
+		SpermEvent.emit('player_shoot_event', {p: Game.Player});
+		
 	})
 
 	window.onresize = e => {
@@ -82,10 +83,10 @@ function startGame(data) {
 		Game.View.resize();
 	}
 
-	setInterval(() => {
+	updateInterval = setInterval(() => {
 		Game.Player.update();
 
-		document.getElementById('score').innerHTML = Game.Player.score;
+		// document.getElementById('score').innerHTML = Game.Player.score;
 
 		$('#player_x').text(~~Game.Player.x);
 		$('#player_y').text(~~Game.Player.y);
@@ -94,18 +95,62 @@ function startGame(data) {
 
 	drawInterval = setInterval(() => {
 		Game.View.draw();
-	}, 1000 / 120)
+	}, 1000 / 60)
+
+	// garbage collection
+	garbageInterval = setInterval(() => {
+		var v = getView();
+
+		for(var j = 0; j < Game.food.length; j++) {
+			if(!v.isInView(Game.food[j])) {
+				Game.food.splice(j, 1);
+				j--;
+			}
+		}
+
+		for(var j = 0; j < Game.players.length; j++) {
+			if(!v.isInView(Game.players[j])) {
+				Game.players.splice(j, 1);
+				j--;
+				continue;
+			}
+
+			if(Date.now() - Game.players[j].updated > 50) {
+				Game.players.splice(j, 1);
+				j--;
+			}
+		}
+
+		for(var j = 0; j < Game.shards.length; j++) {
+			if(!v.isInView(Game.shards[j])) {
+				Game.shards.splice(j, 1);
+				j--;
+				continue;
+			}
+
+			if(Date.now() - Game.shards[j].updated > 50) {
+				Game.shards.splice(j, 1);
+				j--;
+			}
+		}
+	})
 }
 
 function stopGame() {
 	music.pause();
 	
 	clearInterval(drawInterval);
+	clearInterval(updateInterval);
+	clearInterval(garbageInterval);
 	clearInterval(spawnFoodInterval);
+
+	ctx.canvas.remove();
 
 	// reset Game object
 	Game = {};
 
 	$('.wrapper').hide();
 	$('#overlay').fadeIn('slow');
+
+	connectToSocketServer();
 }

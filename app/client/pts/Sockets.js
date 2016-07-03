@@ -1,12 +1,21 @@
-var ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
+var ws;
+
+function connectToSocketServer() {
+	ws = new WebSocket('ws://localhost:3000', 'echo-protocol');
+};
 
 ws.onmessage = (o) => {
-	var msg = JSON.parse(o.data);
-	messages[msg.id](msg);
+	if(o.data) {
+		var msg = JSON.parse(o.data);
+		messages[msg.id](msg);
+	} else
+		messages[msg.id]();
 }
 
 var messages = {
 	handshake: function(data) {
+		console.log('what');
+
 		startGame(data);
 	},
 
@@ -14,6 +23,8 @@ var messages = {
 		Game.Player.score = data.update.player.score;
 		Game.Player.x = data.update.player.x;
 		Game.Player.y = data.update.player.y;
+		Game.Player.health = data.update.player.health;
+		Game.Player.damage = data.update.player.damage;
 
 		data.update.food.forEach(e => {
 			var f = findFood(e._id);
@@ -26,6 +37,16 @@ var messages = {
 			f.radius = e.radius;
 		});
 
+		data.update.shards.forEach(e => {
+			var s = findShard(e._id);
+			if(s === null)
+				return Game.shards.push(new Shard(e.x, e.y, e.radius, e._id, e.updated));
+
+			s.x = e.x;
+			s.y = e.y;
+			s.updated = e.updated;
+		})
+
 		data.update.players.forEach(e => {
 			var p = findPlayer(e._id);
 			if(p === null)
@@ -33,39 +54,40 @@ var messages = {
 
 			p.x = e.x;
 			p.y = e.y;
+			p.updated = e.updated;
+			p.damage = e.damage;
 			// p.impact = e.impact;
 			p.radius = e.radius;
 		})
 
-		// update food
-		for(var j = 0; j < Game.food.length; j++) {
-			var f = Game.food[j];
-
-			var u_f = afindFood(data.update.food, f._id);
-			if(u_f === null) {
-				Game.food.splice(j, 1);
-				j--;
-				continue;
-			}
-		}
-
-		// update players
-		for(var j = 0; j < Game.players.length; j++) {
-			var p = Game.players[j];
-
-			var u_p = afindPlayer(data.update.players, p._id);
-			if(u_p === null) {
-				Game.players.splice(j, 1);
-				j--;
-				continue;
-			}
-
-		}
 		// Game.Player.food = [];
 
 		// data.update.player.food.forEach(e => {
 		// 	Game.Player.food.push(new Food(e.x, e.y, e.color, e._id));
 		// })
+	},
+
+	rankings: function(data) {
+		Game.top = data.leaderboard[0].score;
+
+		var str = '';
+		for(var j = 0; j < data.leaderboard.length; j++)
+			str += '<li>' 
+			+ '<span>' + (j + 1) + '. </span>'
+			+ '<span>' + (data.leaderboard[j].username ? data.leaderboard[j].username : 'unnamed shooter') + '</span>' 
+			+ '<span>' + data.leaderboard[j].score + '</span>' 
+			+ '</li>';
+
+		document.getElementById('leaderboard').innerHTML = str;
+	},
+
+	alert: function(data) {
+		addAlert(data.alert);
+	},
+
+	die: function(data) {
+		ws.close();
+		stopGame();
 	},
 
 	disconnect: function(data) {

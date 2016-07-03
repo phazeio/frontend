@@ -61,6 +61,9 @@ module.exports.startWebSocketServer = function(server) {
       });
 
       connection.on('close', function(reasonCode, description) {
+        if(!pPointer)
+          return;
+
         Events['disconnect'](pPointer._id);
       });
   });

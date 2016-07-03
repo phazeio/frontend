@@ -78,6 +78,22 @@
 	.container {
 		width: 100%;
 	}
+
+	#leaderboard {
+		text-align: left;
+	}
+
+	#leaderboard li span:nth-child(1) {
+		float: left;
+	}
+
+	#leaderboard li span:nth-child(2) {
+		margin-left: 3px;
+	}
+
+	#leaderboard li span:nth-child(3) {
+		float: right;
+	}
 </style>
 <body>
 	<div class="wrapper">
@@ -87,8 +103,8 @@
 			<div class="container">
 				<h3 style="text-align: center; margin-top: 10px">Leaderboard</h3>
 				<div id="top">
-					<ul>
-						<li>to be implemented</li>
+					<ul id="leaderboard">
+						<li>loading...</li>
 					</ul>
 				</div>
 			</div>
@@ -96,12 +112,12 @@
 				x: <span id="player_x">-</span> y: <span id="player_y">-</span>
 			</span>
 		</div>
-
+<!-- 
 		<div class="sperm-box" id="player_score">
 			<div class="container">
 				<h3 style="color: white; margin-top: 10px">Mana: <span id="score">0</span></h3>
 			</div>
-		</div>
+		</div> -->
 
 		<button class="btn btn-danger audio" id="mute_btn">
 			<h4 style="margin-top: 10px; padding: 1px 3px"><i class="fa fa-stop" aria-hidden="true"></i></h4>

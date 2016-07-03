@@ -1,14 +1,14 @@
 var API = require('../API')
-	, key = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+	, key = '1234567890';
 
 
 var createObjectID = (num) => {
-		var str = '';
-		for(var j = 0; j < num; j++)
-			str += key[Math.floor(Math.random() * (key.length - 1))];
+	var str = '';
+	for(var j = 0; j < num; j++)
+		str += key[Math.floor(Math.random() * (key.length - 1))];
 
-		return str;
-	}
+	return str;
+}
 
 var Game = {};
 var Constants = API.Constants;
@@ -20,15 +20,95 @@ Game.start = function(http) {
 		Game.spawnFood();
 	}
 
+	// check collission
 	setInterval(() => {
 		Game.Players.forEach(p => {
+			for(var j = 0; j < Game.Shards.length; j++) {
+				if(!API.areOverlapping(Game.Shards[j], p, 10) || Game.Shards[j].shooter_id === p._id)
+					continue;
+
+				p.health -= 100;
+				if(p.health <= 0) {
+					Game.FindPlayer(Game.Shards[j].shooter_id).socket.sendUTF(JSON.stringify({id: 'alert', alert: 'You killed ' + (p.username ? p.username + '.' : ' an unnamed shooter.')}))
+					p.die();
+				} else {
+					p.damage = true;
+					setTimeout(() => p.damage = false, 200);
+				}
+
+
+				Game.Shards.splice(j, 1);
+				j--;
+			}
+		})
+	});
+
+	// leaderboard
+	setInterval(() => {
+		Game.Leaderboard = [];
+
+		Game.Players.forEach(p => {
+			if(!p)
+				return; 
+
+			if(Game.Leaderboard.length === 0) {
+				Game.Leaderboard.push({username: p.username, score: p.score});
+				return;
+			}
+
+			for(var j = 0; j < Game.Leaderboard.length; j++) {
+				if(Game.Leaderboard[j].score < p.score) {
+					Game.Leaderboard.splice(j, 0, {username: p.username, score: p.score});
+					return;
+				}
+			}
+
+			Game.Leaderboard.push({username: p.username, score: p.score});
+		});
+
+
+		var leaderboard = [];
+
+		if(Game.Leaderboard.length > 10)
+			leaderboard = Game.Leaderboard.slice(0, 11);
+		else if(Game.Leaderboard.length > 0)
+			leaderboard = Game.Leaderboard;
+
+		Game.Players.forEach(p => {
+			if(!p)
+				return;
+
+			p.socket.sendUTF(JSON.stringify({id: 'rankings', leaderboard: leaderboard}))
+		});
+	}, 2000)
+
+	// game loop
+	setInterval(() => {
+		for(var j = 0; j < Game.Shards.length; j++) {
+			Game.Shards[j].move();
+			Game.Shards[j].updated = Date.now();
+
+			if(Date.now() - Game.Shards[j].createdAt < 15000)
+				continue;
+
+			Game.Shards.splice(j, 1);
+			j--;
+		}
+
+		Game.Players.forEach(p => {
+			if(!p)
+				return;
+
+			p.radius = Constants.PLAYER_RADIUS + (0.2 * p.getScore());
 			p.move();
+			p.updated = Date.now();
 			var player_copy = Object.assign({}, p);
 			delete player_copy['socket'];
 
 			var g = {
 				food: [],
 				players: [],
+				shards: [],
 				player: player_copy,
 			},	v = getView(p);
 
@@ -36,6 +116,11 @@ Game.start = function(http) {
 			Game.Food.forEach(e => {
 				if(v.isInView(e))
 					g.food.push(e);
+			});
+
+			Game.Shards.forEach(e => {
+				if(v.isInView(e))
+					g.shards.push(e);
 			});
 
 			Game.Players.forEach(e => {
@@ -57,6 +142,7 @@ Game.start = function(http) {
 
 // array of entities
 Game.Food = [];
+Game.Shards = [];
 Game.Players = [];
 Game.Map = new Map(Constants.MAP_SIZE, Constants.MAP_SIZE);
 Game.Leaderboard = [];
@@ -93,7 +179,7 @@ Game.FindPlayer = (_id) => {
 }
 
 Game.RemovePlayer = function(e) {
-	Game.Players.splice(Game.Player.indexOf(e), 1);
+	Game.Players.splice(Game.Players.indexOf(e), 1);
 }
 
 Game.addEntity = e => {
@@ -155,31 +241,49 @@ function Player(username, socket) {
 	this.username = username;
 	this.socket = socket;
 	this.impact = [];
-	this.speed = 5;
+	this.speed = 4;
+	this.radius = Constants.PLAYER_RADIUS;
+	this.health = 100;
+	this.damage = false;
+	this.updated = Date.now();
 
 	this.getScore = () => this.score;
 	this.getUsername = () => this.username;
 	this.getFood = () => this.food;
 	this.getSocket = () => this.socket;
 	this.getAngle = () => this.angle;
-
+	this.getHealth = () => this.health;
+ 
 	this.setScore = s => this.score = s;
 	this.setUsername = u => this.username = u;
 	this.setAngle = a => this.angle = a;
+	this.setHealth = h => this.health = h;
 
 	/*
 	* move player
 	*/
 	this.move = () => {
-		if(this.y - this.radius + this.speed * Math.sin(this.angle) > 0)
+		var y = this.y + this.speed * Math.sin(this.angle);
+		if(y - this.radius > 0 && y + this.radius < Constants.MAP_SIZE)
 			this.y += this.speed * Math.sin(this.angle);
 
-		if(this.x - this.radius + this.speed * Math.cos(this.angle) > 0)
+		var x = this.x + this.speed * Math.cos(this.angle);
+		if(x - this.radius > 0 && x + this.radius < Constants.MAP_SIZE)
 			this.x += this.speed * Math.cos(this.angle);
 
 		// EMIT MOVE EVENT
 		// SpermEvent.emit('player_move_event', {player: this});
 	}
+}
+
+Player.prototype.die = function() {
+	this.socket.sendUTF(JSON.stringify({id: 'die'}));
+
+	for(var j = 0; j < this.getScore() / 2; j++)
+		Game.Food.push(new Food(null, (Math.random() * (this.x + this.radius)) + (this.x - this.radius), (Math.random() * (this.y + this.radius)) + (this.y - this.radius)))
+
+	this.socket.close();
+	Game.RemovePlayer(this);
 }
 
 // Player.prototype.getView = () => {
@@ -223,8 +327,11 @@ View.prototype.isInView = function(r) {
 /*
 * @class Food
 */
-function Food() {
-	Entity.call(this, ~~(Math.random() * Constants.MAP_SIZE), ~~(Math.random() * Constants.MAP_SIZE), Constants.FOOD_RADIUS);
+function Food(color, x, y) {
+	var _x = x !== undefined ? x : ~~(Math.random() * Constants.MAP_SIZE)
+		, _y = y !== undefined ? y : ~~(Math.random() * Constants.MAP_SIZE);
+
+	Entity.call(this, _x, _y, Constants.FOOD_RADIUS);
 	this.chained = false;
 	this.player = null;
 
@@ -235,6 +342,28 @@ function Food() {
 	this.getChained = () => this.chained;
 }
 
+/*
+* @class Shard
+*/
+function Shard(x, y, angle, s_id) {
+	Entity.call(this, x, y, 10);
+
+	this.color = '#ff5050';
+	this.angle = angle;
+	this.shooter_id = s_id;
+	this.createdAt = Date.now();
+	this.updated = Date.now();
+
+	this.move = () => {
+		if(this.y - this.radius + Constants.SHARD_SPEED * Math.sin(this.angle) > 0)
+			this.y += Constants.SHARD_SPEED * Math.sin(this.angle);
+
+		if(this.x - this.radius + Constants.SHARD_SPEED * Math.cos(this.angle) > 0)
+			this.x += Constants.SHARD_SPEED * Math.cos(this.angle);
+	}
+}
+
 module.exports.Game = Game;
 module.exports.Player = Player;
 module.exports.Food = Food;
+module.exports.Shard = Shard;

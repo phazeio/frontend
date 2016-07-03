@@ -26,13 +26,15 @@ function Entity(x, y, radius, _id, color) {
 /**
 * Player Class
 */
-function Player(username, x, y, _id, color) {
+function Player(username, x, y, _id, color, health) {
 	Entity.call(this, x, y, Constants.PLAYER_RADIUS, _id, color);
 	this.skews = [];
 	this.impact = [];
 	this.score = 0;
-	this.nitrous = false;
 	this.username = username;
+	this.health = 100;
+	this.damage = false;
+	this.updated = Date.now();
 	// this.speed = SPEED;
 
 	this.getScoreDecrease = () => 0.005 * this.score;
@@ -59,8 +61,8 @@ function Player(username, x, y, _id, color) {
 	*/
 	this.update = () => {
 
-		var newTheta = angleBetween(crds2ctx({x: this.x, y: this.y})
-			, {x: mouse.x - this.radius * 2, y: mouse.y - this.radius * 2});
+		var newTheta = angleBetween({x: window.innerWidth / 2, y: window.innerHeight / 2}
+			, {x: mouse.x, y: mouse.y });
 
 
 		var dif = Math.abs(newTheta - theta);
@@ -73,9 +75,7 @@ function Player(username, x, y, _id, color) {
 			theta += newTheta > theta ? dif / Constants.TURN_SOFTEN : -1 * dif / Constants.TURN_SOFTEN;
 		}
 
-		this.radius = Constants.PLAYER_RADIUS + (0.5 * this.score);
-
-		console.log(round(theta * 180 / Math.PI, 2));
+		this.radius = Constants.PLAYER_RADIUS + (0.2 * this.score);
 
 		SpermEvent.emit('angle_update', {player: this, angle: theta});
 	}
@@ -112,14 +112,14 @@ function Player(username, x, y, _id, color) {
 		}
 
 
-		ctx.shadowBlur = this.nitrous ? 30 : 20;
-		ctx.shadowColor = this.nitrous ? '#ff5050' : '#595959';
+		ctx.shadowBlur = 20;
+		ctx.shadowColor = '#595959';
 		ctx.shadowOffsetX = 0;
 		ctx.shadowOffsetY = 0;
-		ctx.fillStyle = this.color;
+		ctx.fillStyle = (this.damage ? '#ff3333' : this.color);
 		ctx.fill();
 		ctx.lineWidth = Constants.LINE_WIDTH;
-		ctx.strokeStyle = 'rgb(' + h2r(this.color).r + ', ' + h2r(this.color).g + ', ' + ((h2r(this.color).b + 15) > 255 ? 255 : (h2r(this.color).b + 15)) + ')';
+		ctx.strokeStyle = (this.damage ? '#cc0000' : 'rgb(' + h2r(this.color).r + ', ' + h2r(this.color).g + ', ' + ((h2r(this.color).b + 15) > 255 ? 255 : (h2r(this.color).b + 15)) + ')');
 		ctx.closePath();
 		ctx.stroke();
 
@@ -147,14 +147,6 @@ function Food(x, y, color, _id) {
 	this.draw = function() {
 		var r = h2r(this.color)
 			, crds = crds2ctx(this);
-
-		if (this.chained && Game.Player.nitrous === true) {
-			ctx.shadowColor = '#ff5050'
-			ctx.shadowBlur = 30;
-			ctx.shadowBlur = 10;
-			ctx.shadowOffsetX = 0;
-			ctx.shadowOffsetY = 0;
-		}
 
 		if (null != r && null !== r)
 			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30 > 255 ? 255 : r.g + 30) + ', ' + (r.b + 30 > 255 ? 255 : r.b + 30) + ', ' + 0.4 + ')';
@@ -204,4 +196,32 @@ function Food(x, y, color, _id) {
 			this.radius = this.radius < Constants.FOOD_RADIUS ? this.radius + rate : Constants.FOOD_RADIUS;
 	}
 
+}
+
+/**
+* Shard Class
+*/
+function Shard(x, y, radius, _id, updated) {
+	Entity.call(this, x, y, radius, _id);
+
+	this.color = '#ff5050';
+	this.updated = updated;
+
+	this.draw = () => {
+		var r = h2r(this.color)
+			, crds = crds2ctx(this);
+
+		if (null != r && null !== r)
+			ctx.fillStyle = 'rgba(' + r.r + ', ' + (r.g + 30 > 255 ? 255 : r.g + 30) + ', ' + (r.b + 30 > 255 ? 255 : r.b + 30) + ', ' + 0.4 + ')';
+		ctx.beginPath();
+		ctx.arc(crds.x, crds.y, this.radius + 4 + (Math.random() * 1), 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.fill();
+
+		ctx.fillStyle = this.color;
+		ctx.beginPath();
+		ctx.arc(crds.x, crds.y, this.radius + (Math.random() * 1), 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.fill();
+	}
 }

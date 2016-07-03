@@ -4,9 +4,9 @@ var Constants = {SPEED: 5
 	, PLAYER_RADIUS: 25
 	, SNAKINESS: 10
 	, TURN_SOFTEN: 10
-	, SPEED: 0.1
+	, SHARD_SPEED: 8
 	, VIEW_DISTANCE: 1000
-	, MAP_SIZE: 4000};
+	, MAP_SIZE: 10000};
 
 /*
 * @param o - an Entity object
@@ -130,29 +130,16 @@ function findPlayer(_id) {
 }
 
 /*
-* find food
+* find shard
 */
-function afindFood(arr, _id) {
-	var food = null;
-	arr.forEach(e => {
+function findShard(_id) {
+	var s = null;
+	Game.shards.forEach(e => {
 		if(e._id === _id)
-			return food = e;
+			return s = e;
 	})
 
-	return food;
-}
-
-/*
-* find player
-*/
-function afindPlayer(arr, _id) {
-	var player = null;
-	arr.forEach(e => {
-		if(e._id === _id)
-			return player = e;
-	})
-
-	return player;
+	return s;
 }
 
 /*
@@ -161,9 +148,6 @@ function afindPlayer(arr, _id) {
 function drawAllPlayers() {
 	Game.players.forEach(p => {
 		drawPlayer(p);
-		p.food.forEach(f => {
-			f.draw();
-		})
 	});
 }
 
@@ -171,58 +155,55 @@ function drawAllPlayers() {
 * @param p - Player object
 */
 function drawPlayer(p) {
-		var crds = crds2ctx(p)
-			, x = crds.x
-			, y = crds.y;
+	var crds = crds2ctx(p)
+		, x = crds.x
+		, y = crds.y;
 
-		var amp = 1.2,
-			sineCount = Math.floor(Math.random() * 5) + 3,
-			start = 0,
-			stop = start + 360;
+	var amp = 1.2,
+		sineCount = Math.floor(Math.random() * 5) + 3,
+		start = 0,
+		stop = start + 360;
 
-		ctx.beginPath();
+	ctx.beginPath();
 
-		for (var i = 0; i < 360; i++)
-			p.skews[i] /= 1.1;
+	for (var i = 0; i < 360; i++)
+		p.skews[i] /= 1.1;
 
+	for (var i = 0; i < 360; i++) 
+		if (p.impact[i])
+			var radiusOfImpact = 2 * Constants.FOOD_RADIUS / p.radius;
+			for (var j = 0; j < radiusOfImpact * 2; j++) 
+				p.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += p.impact[i] * Math.sin(j * Math.PI / radiusOfImpact / 2);
 
-		console.log('radius');
+	p.impact = [];
 
-		for (var i = 0; i < 360; i++) 
-			if (p.impact[i])
-				var radiusOfImpact = 2 * Constants.FOOD_RADIUS / p.radius;
-				for (var j = 0; j < radiusOfImpact * 2; j++) 
-					p.skews[((~~(i - radiusOfImpact + j)) + 360) % 360] += p.impact[i] * Math.sin(j * Math.PI / radiusOfImpact / 2);
-
-		p.impact = [];
-
-		for (var i = 0; i < 360; i++) {
-			var angle = i * Math.PI / 180,
-		  		pt = sineCircleXYatAngle(x, y, p.radius - p.skews[i], amp, angle, sineCount);
-		  	ctx.lineTo(pt.x, pt.y);
-		}
-
-
-		ctx.shadowBlur = 20;
-		ctx.shadowColor = '#595959';
-		ctx.shadowOffsetX = 0;
-		ctx.shadowOffsetY = 0;
-		ctx.fillStyle = p.color;
-		ctx.fill();
-		ctx.lineWidth = LINE_WIDTH;
-		ctx.strokeStyle = 'rgb(' + h2r(p.color).r + ', ' + h2r(p.color).g + ', ' + ((h2r(p.color).b + 15) > 255 ? 255 : (h2r(p.color).b + 15)) + ')';
-		ctx.closePath();
-		ctx.stroke();
-
-		ctx.font = "20px Helvetica";
-		ctx.shadowColor = p.color;
-		ctx.shadowBlur = 10;
-		ctx.shadowOffsetX = 0;
-		ctx.shadowOffsetY = 0;
-		ctx.fillStyle = p.color;
-		ctx.textAlign = "center";
-		ctx.fillText(p.username, x, y + p.radius + 20); 
+	for (var i = 0; i < 360; i++) {
+		var angle = i * Math.PI / 180,
+	  		pt = sineCircleXYatAngle(x, y, p.radius - p.skews[i], amp, angle, sineCount);
+	  	ctx.lineTo(pt.x, pt.y);
 	}
+
+
+	ctx.shadowBlur = 20;
+	ctx.shadowColor = '#595959';
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+	ctx.fillStyle = (p.damage ? '#ff3333' : p.color);
+	ctx.fill();
+	ctx.lineWidth = Constants.LINE_WIDTH;
+	ctx.strokeStyle = (p.damage ? '#cc0000' : 'rgb(' + h2r(p.color).r + ', ' + h2r(p.color).g + ', ' + ((h2r(p.color).b + 15) > 255 ? 255 : (h2r(p.color).b + 15)) + ')');
+	ctx.closePath();
+	ctx.stroke();
+
+	ctx.font = "20px Helvetica";
+	ctx.shadowColor = p.color;
+	ctx.shadowBlur = 10;
+	ctx.shadowOffsetX = 0;
+	ctx.shadowOffsetY = 0;
+	ctx.fillStyle = p.color;
+	ctx.textAlign = "center";
+	ctx.fillText(p.username, x, y + p.radius + 20); 
+}
 
 /*
 * Draws all food entities on the map
@@ -238,6 +219,10 @@ function drawAllFood() {
 			i--;
 		}
 	}
+}
+
+function drawAllShards() {
+	Game.shards.forEach(s => s.draw());
 }
 
 try {

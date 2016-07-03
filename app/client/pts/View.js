@@ -1,5 +1,6 @@
 /**
 * View Class
+* Game view
 */
 function View() {
 	var image = document.getElementById('source');
@@ -53,7 +54,7 @@ function View() {
 	}
 
 	this.draw = () => {
-		ctx.fillStyle = '#ff99cc';
+		ctx.fillStyle = '#ffffff';
 		ctx.fillRect(0,0,window.outerWidth,window.outerHeight);
 
 		ctx.fillStyle = '#333333';
@@ -65,10 +66,11 @@ function View() {
 		var start =  ~~((Game.Player.x - Constants.VIEW_DISTANCE) / 100) * 100
 			, stop = start + 2 * Constants.VIEW_DISTANCE;
 
+
 		for (var j = start; j < stop; j+=100) {
 			ctx.fillStyle = (j === 0 || j === Game.Map.width) ? 'red' : '#333333';
 			var x = Game.View.width / 2 - (Game.Player.x - j);
-			ctx.fillRect(x, 0, 3, window.innerHeight);
+			ctx.fillRect(x, 0, 1, window.innerHeight);
 		}
 
 		start = ~~((Game.Player.y - Constants.VIEW_DISTANCE) / 100) * 100
@@ -77,12 +79,45 @@ function View() {
 		for (var j = start; j < stop; j+=100) {
 			ctx.fillStyle = (j === 0 || j === Game.Map.height) ? 'red' : '#333333';
 			var y = Game.View.height / 2 - (Game.Player.y - j);
-			ctx.fillRect(0, y, window.innerWidth, 3);
+			ctx.fillRect(0, y, window.innerWidth, 1);
 		}
 
 		drawAllFood();
+		drawAllShards();
 		drawAllPlayers();
 
 		Game.Player.draw(this.width / 2, this.height / 2);
+
+		drawHealthBar();
+		drawManaBar();
+
+		for(var j = 0; j < Game.Alerts.length; j++)
+			drawAlert(50 + (30 * j), Game.Alerts[j]);
 	}
+}
+
+/*
+* @class PlayerView
+*/
+function PlayerView() {
+	this.topY = Game.Player.y - Constants.VIEW_DISTANCE;
+	this.bottomY = Game.Player.y + Constants.VIEW_DISTANCE;
+	this.rightX = Game.Player.x + Constants.VIEW_DISTANCE;
+	this.leftX = Game.Player.x -Constants.VIEW_DISTANCE;
+}
+
+
+function getView() {
+	return new PlayerView();
+}
+
+/*
+* @param r - object that implments Point class
+* returns boolean
+*/
+PlayerView.prototype.isInView = function(r) {
+	if(r.x > this.leftX && r.x < this.rightX && r.y > this.topY && r.y < this.bottomY)
+		return true;
+
+	return false;
 }

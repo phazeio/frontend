@@ -1,6 +1,7 @@
 var Game = require('./Game').Game
 	Player = require('./Game').Player
-	Food = require('./Game').Food;
+	Food = require('./Game').Food
+	Shard = require('./Game').Shard;
 
 module.exports = {
 	/*
@@ -9,6 +10,8 @@ module.exports = {
 	* Store Player + Socket ID in array
 	*/
 	handshake: (data) => {
+		console.log('handshake');
+		
 		var p = new Player(data.username, data.socket);
 		Game.Players.push(p);
 
@@ -65,16 +68,33 @@ module.exports = {
 		Game.spawnFood();
 	},
 
+	shoot: (data, p) => {
+		if(!p)
+			return;
+
+		if(p.score - 5 < 0)
+			return;
+
+		p.score -= 5;
+		var x = p.x + p.radius * Math.cos(p.angle);
+		var y = p.y + p.radius * Math.sin(p.angle);
+		Game.Shards.push(new Shard(x, y, p.angle, p._id));
+	},
+
 	/*
 	* disconnect
 	*
 	*/
 	disconnect: (_id) => {
-          for(var j = 0; j < Game.Players.length; j++)
+		console.log('WS: Closed connection.');
+
+		if(!_id)
+			return;
+
+        for(var j = 0; j < Game.Players.length; j++) {
             if(Game.Players[j]._id === _id) {
               	Game.Players.splice(j, 1);
             }
-
-          console.log('WS: Closed connection.');
+        }
 	}
 }

@@ -39,3 +39,7 @@ SpermEvent.on('player_eat_event', e => {
 SpermEvent.on('angle_update', e => {
 	ws.send(JSON.stringify({id: 'angle_update', angle: e.angle}));
 })
+
+SpermEvent.on('player_shoot_event', e => {
+	ws.send(JSON.stringify({id: 'shoot', player: e.player}));
+})
