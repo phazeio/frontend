@@ -1,14 +1,11 @@
-var API = require('../API')
-	, key = '1234567890';
+var Entity = require('./Entities/Entity')
+	, Player = require('./Entities/Player')
+	, Food = require('./Entities/Food')
+	, Shard = require('./Entities/Shard');
 
 
-var createObjectID = (num) => {
-	var str = '';
-	for(var j = 0; j < num; j++)
-		str += key[Math.floor(Math.random() * (key.length - 1))];
+var API = require('../API');
 
-	return str;
-}
 
 var Game = {};
 var Constants = API.Constants;
@@ -199,106 +196,6 @@ function Map(w, h) {
 }
 
 /*
-* @class Point
-*/
-function Point(x, y) {
-	this.x = x;
-	this.y = y;
-}
-
-/*
-* @class Entity
-*/
-function Entity(x, y, radius, color) {
-	Point.call(this, x, y);
-	this._id 	= createObjectID(16);	
-	this.radius = radius;
-	this.color 	= API.randomColor();
-
-	// set id
-	this.set_id = (_id) => this._id = _id;
-
-	this.setX = x => this.x = x;
-	this.setY = y => this.y = y;
-	this.setColor = c => this.color = c;
-	this.setRadius = r => this.radius = r;
-
-	this.get_id = () => this._id;
-	this.getX = () => this.x;
-	this.getY = () => this.y;
-	this.getColor = () => this.color;
-	this.getRadius = () => this.radius;
-}
-
-/*
-* @class Player
-*/
-function Player(username, socket) {
-	Entity.call(this, ~~((Math.random() * 300) + Constants.MAP_SIZE / 3), ~~((Math.random() * 300) + Constants.MAP_SIZE / 3), Constants.PLAYER_RADIUS);
-	this.food = [];
-	this.angle = 0;
-	this.score = 0;
-	this.username = username;
-	this.socket = socket;
-	this.impact = [];
-	this.speed = 4;
-	this.radius = Constants.PLAYER_RADIUS;
-	this.health = 100;
-	this.damage = false;
-	this.updated = Date.now();
-
-	this.getScore = () => this.score;
-	this.getUsername = () => this.username;
-	this.getFood = () => this.food;
-	this.getSocket = () => this.socket;
-	this.getAngle = () => this.angle;
-	this.getHealth = () => this.health;
- 
-	this.setScore = s => this.score = s;
-	this.setUsername = u => this.username = u;
-	this.setAngle = a => this.angle = a;
-	this.setHealth = h => this.health = h;
-
-	/*
-	* move player
-	*/
-	this.move = () => {
-		var y = this.y + this.speed * Math.sin(this.angle);
-		if(y - this.radius > 0 && y + this.radius < Constants.MAP_SIZE)
-			this.y += this.speed * Math.sin(this.angle);
-
-		var x = this.x + this.speed * Math.cos(this.angle);
-		if(x - this.radius > 0 && x + this.radius < Constants.MAP_SIZE)
-			this.x += this.speed * Math.cos(this.angle);
-
-		// EMIT MOVE EVENT
-		// SpermEvent.emit('player_move_event', {player: this});
-	}
-}
-
-Player.prototype.die = function() {
-	this.socket.sendUTF(JSON.stringify({id: 'die'}));
-
-	for(var j = 0; j < this.getScore() / 2; j++)
-		Game.Food.push(new Food(null, (Math.random() * (this.x + this.radius)) + (this.x - this.radius), (Math.random() * (this.y + this.radius)) + (this.y - this.radius)))
-
-	this.socket.close();
-	Game.RemovePlayer(this);
-}
-
-// Player.prototype.getView = () => {
-// 	return new View(this.y - VIEW_DISTANCE, 
-// 		this.y + VIEW_DISTANCE, 
-// 		this.x - VIEW_DISTANCE, 
-// 		this.y - VIEW_DISTANCE);
-// }
-
-Player.prototype.addFood = function(f) {
-	f.setChained(true);
-	this.food.push(f)
-};
-
-/*
 * @class View
 */
 function View(tY, bY, rX, lX) {
@@ -322,45 +219,6 @@ View.prototype.isInView = function(r) {
 		return true;
 
 	return false;
-}
-
-/*
-* @class Food
-*/
-function Food(color, x, y) {
-	var _x = x !== undefined ? x : ~~(Math.random() * Constants.MAP_SIZE)
-		, _y = y !== undefined ? y : ~~(Math.random() * Constants.MAP_SIZE);
-
-	Entity.call(this, _x, _y, Constants.FOOD_RADIUS);
-	this.chained = false;
-	this.player = null;
-
-	this.setPlayer = (p) => this.player = p;
-	this.setChained = (c) => this.chained = c;
-
-	this.getPlayer = () => this.player;
-	this.getChained = () => this.chained;
-}
-
-/*
-* @class Shard
-*/
-function Shard(x, y, angle, s_id) {
-	Entity.call(this, x, y, 10);
-
-	this.color = '#ff5050';
-	this.angle = angle;
-	this.shooter_id = s_id;
-	this.createdAt = Date.now();
-	this.updated = Date.now();
-
-	this.move = () => {
-		if(this.y - this.radius + Constants.SHARD_SPEED * Math.sin(this.angle) > 0)
-			this.y += Constants.SHARD_SPEED * Math.sin(this.angle);
-
-		if(this.x - this.radius + Constants.SHARD_SPEED * Math.cos(this.angle) > 0)
-			this.x += Constants.SHARD_SPEED * Math.cos(this.angle);
-	}
 }
 
 module.exports.Game = Game;
