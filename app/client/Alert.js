@@ -1,4 +1,4 @@
-function drawAlert(h, a) {
+Renderer.prototype.drawAlert = function(h, a) {
 	var cw = ctx.canvas.width;
 
 	ctx.shadowColor = 'white';
@@ -17,11 +17,17 @@ function drawAlert(h, a) {
 	ctx.fillStyle = 'white'
 	ctx.font = 14 + "px Helvetica";
 	ctx.textAlign = "center";
-	ctx.fillText(a, cw / 2, h + 14); 
+	ctx.fillText(a, cw / 2, h + 15); 
+}
+
+Renderer.prototype.drawAlerts = function() {
+	for(var j = 0; j < client.alerts.length; j++)
+			this.drawAlert(50 + (30 * j), client.alerts[j]);
 }
 
 function addAlert(a) {
-	Game.Alerts.push(a);
+	client.alerts.push(a);
 
-	setTimeout(() => Game.Alerts.splice(Game.Alerts.indexOf(a), 1), 4000);
+	setTimeout(() => client.alerts.splice(client.alerts.indexOf(a), 1), 4000);
 }
+

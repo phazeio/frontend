@@ -6,7 +6,7 @@ var gulp       = require('gulp')
   , babel      = require('gulp-babel');
 
 gulp.task('concat', function() {
-  return gulp.src(['./app/client/Sperm.js', './app/API.js', './app/client/pts/*.js'])
+  return gulp.src(['./app/client/*.js'])
     .pipe(concat('sperm.con.js'))
     .pipe(gulp.dest('./public/js'));
 });
@@ -19,7 +19,7 @@ gulp.task('compress', function() {
 });
 
 gulp.task('build', function() {
-  return gulp.src(['./app/client/Sperm.js', './app/API.js', './app/client/pts/*.js'])
+  return gulp.src(['./app/client/*.js'])
     .pipe(concat('sperm.con.js'))
     .pipe(rename('sperm.min.js'))
     .pipe(babel({presets: ['es2015']}))
@@ -28,7 +28,7 @@ gulp.task('build', function() {
 })
 
 gulp.task('watch', function () {
-    gulp.watch(['./app/client/Sperm.js', './app/API.js', './app/client/pts/*.js'], function () {
+    gulp.watch(['./app/client/*.js'], function () {
         gulp.run('concat');
         gulp.run('build');
     });

@@ -1,10 +1,10 @@
 var h = 100;
 
-function drawHealthBar() {
+Renderer.prototype.drawHealthBar = function() {
 	var ch = ctx.canvas.height
 		, cw = ctx.canvas.width;
 
-	if(Game.Player.health < h)
+	if(client.health < h)
 		h -= 1;
 
 	ctx.shadowColor = 'white';
@@ -15,10 +15,7 @@ function drawHealthBar() {
 	ctx.fillStyle = '#66ff66';
 	ctx.roundRect(cw / 2 - 125, ch - 50, h * 2.5, 20, 5, true);
 
-	ctx.shadowColor = 'black';
-	ctx.shadowBlur = 15;
-	ctx.shadowOffsetX = 0;
-	ctx.shadowOffsetY = 0;
+	ctx.shadowColor = '#595959';
 
 	ctx.strokeStyle = '#d9d9d9'
 	ctx.roundRect(cw / 2 - 125, ch - 50, 250, 20, 5, false, true);
@@ -26,5 +23,5 @@ function drawHealthBar() {
 	ctx.fillStyle = 'white'
 	ctx.font = 14 + "px Helvetica";
 	ctx.textAlign = "center";
-	ctx.fillText(Game.Player.health + '/100 HP', cw / 2, ch - 35); 
+	ctx.fillText(client.health + '/100 HP', cw / 2, ch - 35); 
 }

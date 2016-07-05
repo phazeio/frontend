@@ -28,6 +28,8 @@
     "gulp-watch": "^4.3.5",
     "morgan": "^1.7.0",
     "redis": "^2.6.0-2",
-    "websocket": "^1.0.22"
+    "require-dir": "^0.3.0",
+    "websocket": "^1.0.22",
+    "ws": "^1.1.1"
   }
 }
