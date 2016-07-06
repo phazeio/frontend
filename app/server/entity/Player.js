@@ -172,6 +172,15 @@ Player.prototype.shoot = function() {
     var y = this.y + this.radius * Math.sin(this.angle);
 
     this.radius = this.gameServer.config.playerStartRadius + (0.15 * this.mana);
+
+    // bounce animation for player
+    this.radius -= 2;
+    setTimeout(() => {
+    	this.radius += 4;
+    	setTimeout(() => this.radius -= 2, 100);
+    }, 100);
+
+
     this.gameServer.nodeHandler.addShard(new Shard(this.gameServer, x, y, this.angle, this));
 }
 

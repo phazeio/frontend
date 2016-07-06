@@ -17,19 +17,13 @@ window.onload = function() {
 
 	})
 
-	// heal
 	window.addEventListener('keyup', function(e) {
 		if(e.keyCode !== 32)
 			return;
 
 		client.ws.send((new Packet.Heal()).build());
-	})
-
-	// heal
-	// window.addEventListener('keyup', function(e) {
-	// 	if(e.keyCode !== )
-	// })
-
+	});
+	
 	// var play_btn = document.getElementById('play_btn')
 	// 	, mute_btn = document.getElementById('mute_btn');
 
