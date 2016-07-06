@@ -1,5 +1,4 @@
 var Entity = require('./Entity')
-	, Constants = require('../../API').Constants
 	, Packet = require('../packet')
 	, Food = require('./Food')
 	, Shard = require('./Shard');

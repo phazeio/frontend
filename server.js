@@ -46,7 +46,7 @@ var commands = {
 		console.log(str);
 	},
 
-	'listnodes': function() {
+	'nodes': function() {
 		var str = '';
 
 		str += '[ ' + GameServer.nodes.length + ' ] Nodes Active\n';
@@ -55,6 +55,14 @@ var commands = {
 			str += 'No nodes currently active...';
 		else
 			GameServer.nodes.forEach(n => str += n.username ? n.username + ', ' : 'NpN, ');
+
+		console.log(str);
+	},
+
+	'clients': function() {
+		var str = '';
+
+		str += '[ ' + GameServer.clients.length + ' ] Clients Connected';
 
 		console.log(str);
 	},
@@ -76,7 +84,8 @@ var commands = {
 		str += '-------------------------------------------------------------';
 		str += '\n  • help := list help commands';
 		str += '\n  • list := list online shooters';
-		str += '\n  • listnodes := list all nodes';
+		str += '\n  • clients := list connected clients';
+		str += '\n  • nodes := list all nodes';
 		str += '\n  • alert <alert> := alert message to all shooters';
 		str += '\n  • crash <name> := for the lolz';
 		str += '\n-------------------------------------------------------------';

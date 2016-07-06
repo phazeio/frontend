@@ -4,7 +4,7 @@ Renderer.prototype.drawManaBar = function() {
 	var ch = ctx.canvas.height
 		, cw = ctx.canvas.width;
 
-	var bar = client.mana / 1000 * 200;
+	var bar = client.mana / 350 * 200;
 
 	if(bar > 200)
 		bar = 200;
@@ -30,5 +30,5 @@ Renderer.prototype.drawManaBar = function() {
 	ctx.fillStyle = 'white'
 	ctx.font = 14 + "px Helvetica";
 	ctx.textAlign = "center";
-	ctx.fillText(client.mana + ' Mana', cw / 2, ch - 65); 
+	ctx.fillText(client.mana + '/350 Mana', cw / 2, ch - 65); 
 }

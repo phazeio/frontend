@@ -28,12 +28,12 @@ function GameServer() {
 	this.config = {
 		serverMaxConnections: 80, // max connections to server
 		serverPort: 3001, // server port
-		borderSize: 1000, // map border size
+		borderSize: 10000, // map border size
         eloConstant: 50, // elo constant
-		foodAmount: 100, // how many food to spawn initially
-        foodSize: 5,
+		foodAmount: 2000, // how many food to spawn initially
+        foodSize: 4,
         playerMaxDrops: 60,
-        playerMaxMana: 1000,
+        playerMaxMana: 350,
 		playerStartRadius: 30, // starting radius of a player
 		playerMaxRadius: 100, // max radius of a player
         playerMaxNickLength: 13,
@@ -114,6 +114,9 @@ GameServer.prototype.start = function() {
                 return;
             }
 
+            // remove client
+            this.gameServer.clients.remove(this.socket);
+
             if(this.socket.player)
                 this.socket.player.gameServer.nodeHandler.removeNode(this.socket.player);
         }
@@ -126,7 +129,8 @@ GameServer.prototype.start = function() {
 
         var bindObject = {
             server: this,
-            socket: ws
+            socket: ws,
+            gameServer: this
         };
         ws.on('error', close.bind(bindObject));
         ws.on('close', close.bind(bindObject));
@@ -163,6 +167,10 @@ GameServer.prototype.statsLoop = function() {
     var packet = (new Packet.Stats(stats.slice(0, 10))).build();
 
     this.nodesPlayer.forEach(p => p.sendPacket(packet));
+}
+
+GameServer.prototype.getSafeRandomCoord = function() {
+    return ~~((Math.random() * (this.config.borderSize * 0.95)) + this.config.borderSize * 0.025);
 }
 
 GameServer.prototype.alert = function(alert) {
@@ -241,11 +249,6 @@ GameServer.prototype.calcElo = function(w, l) {
     var se = this.calcEloScore(w - l)
     , c = this.config.eloConstant
     , S = 1;
-
-    console.log('elos: ' + w + ' : ' + l);
-    console.log('se: ' + se);
-    console.log('c: ' + c);
-    console.log('S: ' + S);
 
     // swagin them NOT operators <3
     // so hawt

@@ -326,7 +326,6 @@ Client.prototype = {
             var len = packet.byteLength - 1
                 , leaders = [];
 
-                console.log(len);
 
             for(var j = 0; j < len / 31; j++) {
                 var player = {username: '', score: 0, _id: 0};
@@ -352,7 +351,6 @@ Client.prototype = {
 
         // death packet
         90: function(client, packet) {
-            console.log('ok')
             client.renderer.stop();
         },
 
@@ -384,7 +382,6 @@ Client.prototype = {
     },
 
     updateLeaders: function(leaders) {
-        console.log(leaders);
         var str = '';
         for(var j = 0; j < leaders.length; j++)
             str += '<li>' 
@@ -398,4 +395,4 @@ Client.prototype = {
 }
 
 window.client = new Client();
-client.connect('ws://50.116.54.104:3001');
+client.connect('ws://localhost:3001');

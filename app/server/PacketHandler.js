@@ -45,12 +45,16 @@ PacketHandler.prototype.handleMessage = function(message) {
 
     switch(packetId) {
         case 0:
+            // handshake packet
+            if(buffer.byteLength !== 27)
+                return;
+
             // --- HANDSHAKE ---
             if(this.socket.player) {
                 var player = this.socket.player;
 
-                this.socket.close();
                 this.gameServer.nodeHandler.removeNode(player);
+                this.socket.close();
                 return;
             }
 
@@ -70,6 +74,7 @@ PacketHandler.prototype.handleMessage = function(message) {
             // this.gameServer.alert(username + ' has joined.')
             break;
         case 2:
+            // angle check
             if(buffer.byteLength !== 5)
                 return;
 
@@ -78,12 +83,14 @@ PacketHandler.prototype.handleMessage = function(message) {
             this.socket.player.angle = view.getFloat32(1);
             break;
         case 3:
+            // shoot packet
             if(buffer.byteLength !== 1)
                 return;
 
             var player = this.socket.player.shoot();
             break;
         case 4:
+            // heal packet
             if(buffer.byteLength !== 1)
                 return;
 

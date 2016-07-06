@@ -1,5 +1,4 @@
-var Entity = require('./Entity')
-	, Constants = require('../../API').Constants;
+var Entity = require('./Entity');
 
 /*
 * @class Shard

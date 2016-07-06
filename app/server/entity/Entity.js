@@ -11,8 +11,8 @@ var createObjectID = (num) => {
 * @class Entity
 */
 function Entity(gameServer, x, y, radius) {
-	var _x = x ? x : ~~(Math.random() * gameServer.config.borderSize)
-		, _y = y ? y : ~~(Math.random() * gameServer.config.borderSize);
+	var _x = x ? x : gameServer.getSafeRandomCoord()
+		, _y = y ? y : gameServer.getSafeRandomCoord();
 
 	this.x = _x;
 	this.y = _y;

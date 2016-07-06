@@ -77,7 +77,7 @@ Renderer.prototype.drawEntity = function(e) {
 }
 
 Renderer.prototype.drawLines = function() {
-	ctx.fillStyle = '#ffffff';
+	ctx.fillStyle = '#f2f2f2';
 	ctx.fillRect(0,0,window.outerWidth,window.outerHeight);
 
 	ctx.fillStyle = '#333333';
@@ -90,19 +90,19 @@ Renderer.prototype.drawLines = function() {
 		, stop = start + 2 * 1000;
 
 
-	for (var j = start; j < stop; j+=100) {
+	for (var j = start; j < stop; j+=50) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
 		var x = window.outerWidth / 2 - (client.x - j);
-		ctx.fillRect(x, 0, 1, window.innerHeight);
+		ctx.fillRect(x, 0, 0.3, window.innerHeight);
 	}
 
 	start = ~~((client.y - 1000) / 100) * 100
 		, stop = start + 2 * 1000;
 
-	for (var j = start; j < stop; j+=100) {
+	for (var j = start; j < stop; j+=50) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
 		var y = window.outerHeight / 2 - (client.y - j);
-		ctx.fillRect(0, y, window.innerWidth, 1);
+		ctx.fillRect(0, y, window.innerWidth, 0.3);
 	}
 }
 
