@@ -1,6 +1,10 @@
 function Renderer() {
 	this.canvas = document.createElement('canvas');
 	this.renderInterval;
+	this.zoom = {
+		height: document.documentElement.clientWidth / window.outerWidth,
+		width: document.documentElement.clientHeight / window.outerHeight
+	}
 
 	this.canvas.addEventListener('mousemove', function(e) {
 		client.ws.send((new Packet.MouseMove(e)).build());
@@ -22,7 +26,7 @@ function Renderer() {
 		this.renderInterval = setInterval(this.mainLoop.bind(this), 1000 / 60);
 		// this.garbageInterval = setInterval(this.garbageLoop.bind(this), 1000 / 30);
 
-		window.addEventListener('resize', this.resize);
+		window.addEventListener('resize', this.resize.bind(this));
 
 		this.canvas.addEventListener('mousedown', () => client.ws.send((new Packet.Shoot()).build()));
 	}
@@ -77,6 +81,7 @@ Renderer.prototype.drawEntity = function(e) {
 }
 
 Renderer.prototype.drawLines = function() {
+	// check zoom
 	ctx.fillStyle = '#f2f2f2';
 	ctx.fillRect(0,0,window.outerWidth,window.outerHeight);
 
@@ -90,7 +95,7 @@ Renderer.prototype.drawLines = function() {
 		, stop = start + 2 * 1000;
 
 
-	for (var j = start; j < stop; j+=50) {
+	for (var j = start; j < stop; j+=100) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
 		var x = window.outerWidth / 2 - (client.x - j);
 		ctx.fillRect(x, 0, 0.3, window.innerHeight);
@@ -99,7 +104,7 @@ Renderer.prototype.drawLines = function() {
 	start = ~~((client.y - 1000) / 100) * 100
 		, stop = start + 2 * 1000;
 
-	for (var j = start; j < stop; j+=50) {
+	for (var j = start; j < stop; j+=100) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
 		var y = window.outerHeight / 2 - (client.y - j);
 		ctx.fillRect(0, y, window.innerWidth, 0.3);
@@ -148,9 +153,17 @@ Renderer.prototype.crds2ctx = function(o) {
 	return {x: window.outerWidth / 2 - x, y: window.outerHeight / 2 - y};
 }
 
+Renderer.prototype.updateZoom = function() {
+	this.zoom.height = document.documentElement.clientWidth / window.outerWidth;
+	this.zoom.width = document.documentElement.clientHeight / window.outerHeight
+}
+
 Renderer.prototype.resize = function() {
+	this.updateZoom();
+
 	ctx.canvas.height = window.innerHeight;
 	ctx.canvas.width = window.innerWidth;
+
 
 	var zoom = document.documentElement.clientWidth / window.outerWidth;
 	ctx.scale(zoom, zoom);

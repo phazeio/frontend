@@ -35,7 +35,7 @@ Shard.prototype.checkCollision = function() {
 			continue;
 
 		this.gameServer.nodeHandler.removeNode(this);
-		player.inflictDamage(8, this);
+		player.inflictDamage(100, this);
 	}
 }
 

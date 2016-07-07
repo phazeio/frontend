@@ -28,6 +28,7 @@ function GameServer() {
 	this.config = {
 		serverMaxConnections: 80, // max connections to server
 		serverPort: 3001, // server port
+        addressMaxConnections: 5, // max connections per ip address - to protect from botting
 		borderSize: 10000, // map border size
         eloConstant: 50, // elo constant
 		foodAmount: 2000, // how many food to spawn initially
@@ -88,13 +89,13 @@ GameServer.prototype.start = function() {
 
     function connectionEstablished(ws) {
         console.log('WS: New Connection.');
-        if (this.clients.length >= this.config.serverMaxConnections) { // Server full
+        if (this.clients.length >= this.config.serverMaxConnections || ws.checkSameAddressConnections(this) >= this.config.addressMaxConnections) { // Server full
             ws.close();
             return;
         }
 
         // ----- Client authenticity check code -----
-        var origin = ws.upgradeReq.headers.origin;
+        // var origin = ws.upgradeReq.headers.origin;
         // if (origin != 'http://phaze.io' &&
         //     origin != 'https://phaze.io' &&
         //     origin != 'http://localhost' &&
@@ -115,10 +116,10 @@ GameServer.prototype.start = function() {
             }
 
             // remove client
-            this.gameServer.clients.remove(this.socket);
+            this.server.clients.remove(this.socket);
 
             if(this.socket.player)
-                this.socket.player.gameServer.nodeHandler.removeNode(this.socket.player);
+                this.server.nodeHandler.removeNode(this.socket.player);
         }
 
         ws.remoteAddress = ws._socket.remoteAddress;
@@ -130,14 +131,14 @@ GameServer.prototype.start = function() {
         var bindObject = {
             server: this,
             socket: ws,
-            gameServer: this
         };
         ws.on('error', close.bind(bindObject));
         ws.on('close', close.bind(bindObject));
         this.clients.push(ws);
     }
 
-    setInterval(this.mainLoop.bind(this), 1000 / 60);
+    // setInterval(this.mainLoop.bind(this), 1000 / 60);
+    setTimeout(this.mainLoop.bind(this), 1000);
     setInterval(this.statsLoop.bind(this), 1000 * 4)
 }
 
@@ -211,6 +212,7 @@ GameServer.prototype.areOverlapping = function(o1, o2, skew) {
 }
 
 GameServer.prototype.mainLoop = function() {
+    setTimeout(this.mainLoop.bind(this), 15);
 	this.nodeHandler.update();
 }
 
@@ -252,7 +254,8 @@ GameServer.prototype.calcElo = function(w, l) {
 
     // swagin them NOT operators <3
     // so hawt
-    return ~~(c * (S - se));
+    return ~~(c * (1 / ( 1 + Math.pow(10, se))));
+    // return ~~(c * (S - se));
 }
 
 GameServer.prototype.calcEloScore = function(double) {
@@ -335,6 +338,17 @@ WebSocket.prototype.sendPacket = function(packet) {
         this.removeAllListeners();
     }
 };
+
+// <3
+WebSocket.prototype.checkSameAddressConnections = function(gameServer) {
+    var conns = 0;
+
+    for(var j = 0; j < gameServer.clients.length; j++)
+        if(gameServer.clients[j]._socket.remoteAddress === this._socket.remoteAddress)
+            conns++;
+
+    return conns;
+}
 
 // Still not widely used but will be
 Array.prototype.remove = function(item) {

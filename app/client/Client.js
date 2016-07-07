@@ -386,13 +386,23 @@ Client.prototype = {
         for(var j = 0; j < leaders.length; j++)
             str += '<li>' 
             + '<span>' + (j + 1) + '. </span>'
-            + '<span ' + (leaders[j]._id === client._id ? 'style="color: #ff4d4d; font-weight: 900"' : '') + '>' + (leaders[j].username.length !== 0 ? leaders[j].username : 'unnamed shooter') + '</span>' 
+            + '<span ' + (leaders[j]._id === client._id ? 'style="color: #ff4d4d; font-weight: 900"' : '') + '>' + this.validateName(leaders[j].username) + '</span>' 
             + '<span>' + leaders[j].score + ' elo</span>' 
             + '</li>';
 
         document.getElementById('leaderboard').innerHTML = str;
+    },
+
+    validateName: function(username) {
+        // console.log(username);
+        for(var j = 0; j < username.length; j++)
+            if(username.charCodeAt(j) !== 0 && username.charCodeAt(j) !== 32)
+                return username;
+
+
+        return 'anon shooter';
     }
 }
 
 window.client = new Client();
-client.connect('ws://localhost:3001');
+client.connect('ws://localhost:3001/');

@@ -42,7 +42,7 @@ Player.prototype.calculateAngle = function() {
 
 	if (dif > Math.PI) {
 		dif = (2 * Math.PI) - dif;
-		this.theta += ((Math.abs(this.theta - this.angle) > Math.PI && this.angle < Math.PI) ? dif / 10 : -1 * dif / 10) + Math.PI * 2;
+		this.theta += ((Math.abs(this.theta - this.angle) > Math.PI && this.angle < Math.PI) ? dif / 6 : -1 * dif / 6) + Math.PI * 2;
 		this.theta %= Math.PI * 2;
 	} else {
 		this.theta += this.angle > this.theta ? dif / 10 : -1 * dif / 10;
@@ -237,13 +237,16 @@ Player.prototype.alert = function(alert) {
 
 // possible abstraction
 Player.prototype.sendPacket = function(packet) {
-	try {
-		this.socket.send(packet);
-	} catch(err) {
-		// async sending when closed issue hack fix
-		if(err)
-			return console.log(err);
-	}
+	if(this.socket.readyState === 1)
+		this.socket.send(packet, {binary: true});
+
+	// try {
+	// 	this.socket.send(packet);
+	// } catch(err) {
+	// 	// async sending when closed issue hack fix
+	// 	if(err)
+	// 		return console.log(err);
+	// }
 }
 
 module.exports = Player;
