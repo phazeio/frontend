@@ -1,11 +1,11 @@
 /*
 * ================================
 *
-*			  IO_GAME
+*			  PHAZE
 *
 *				by
 *
-*	Coltrane Nadler & Ben Orgera
+*		  Coltrane Nadler
 *
 * ================================
 */
@@ -15,14 +15,61 @@ var express 		= require('express')
 	, app 			= express()
 	, morgan 		= require('morgan')
 	, websocket 	= require('websocket')
-	, redis 		= require('redis')
 	, http		 	= require('http').Server(app)
-	, GameServer 	= require('./app/server/GameServer');
+	, Twitter 		= require("node-twitter-api")
+	, GameServer 	= require('./app/server/GameServer')();
 
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
-app.get('*', (req, res) => res.json(404));
+var Twitter = require("node-twitter-api");
+
+var twitter = new Twitter({
+    consumerKey: 'Zm8f4SJvjoCGWzMLDlawHGBlE',
+    consumerSecret: 'zkDujBVoaqPGuwiXXEX9rm7sASt2QL4nUhkYwMFq7tPRsDfHp3',
+    callback: 'http://localhost:3000/success-token'
+});
+
+var _requestSecret;
+
+app.get("/request-token", function(req, res) {
+    twitter.getRequestToken(function(err, requestToken, requestSecret) {
+        if (err)
+            res.status(500).send(err);
+        else {
+            _requestSecret = requestSecret;
+            res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
+        }
+    });
+});
+
+app.get('/success-token', function(req, res) {
+	res.send('<html><head><script src="js/jquery.js"></script><script>$(function() {$.post("/access-token" + location.search).done(function() {window.close()});});</script></head><body></body></html>');
+})
+
+
+app.post("/access-token", function(req, res) {
+	console.log(req.connection.remoteAddress);
+
+    var requestToken = req.query.oauth_token,
+    verifier = req.query.oauth_verifier;
+
+    twitter.getAccessToken(requestToken, _requestSecret, verifier, function(err, accessToken, accessSecret) {
+        if (err)
+            res.status(500).send(err);
+        else
+            twitter.verifyCredentials(accessToken, accessSecret, function(err, user) {
+                if (err)
+                    res.status(500).send(err);
+                else {
+                	console.log(user);
+                    res.send(user);
+                }
+            });
+    });
+});
+
+app.get('*', (req, res) => res.sendFile(__dirname + '/index.html'));
+// app.get('*', (req, res) => res.json(404));
 
 http.listen(3000, err => {
 	if(err)

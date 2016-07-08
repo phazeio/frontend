@@ -1,15 +1,17 @@
-var WebSocket = require('ws');
-var http = require('http');
-var NodeHandler = require('./NodeHandler');
-var PlayerHandler = require('./PlayerHandler');
-var ShardHandler = require('./ShardHandler');
-var FoodHandler = require('./FoodHandler')
-var PacketHandler = require('./PacketHandler');
-var Entity = require('./entity');
-var Packet = require('./packet');
+var redisPackage    = require('redis')
+    , WebSocket     = require('ws')
+    , http          = require('http')
+    , NodeHandler   = require('./NodeHandler')
+    , PlayerHandler = require('./PlayerHandler')
+    , ShardHandler  = require('./ShardHandler')
+    , FoodHandler   = require('./FoodHandler')
+    , PacketHandler = require('./PacketHandler')
+    , Entity        = require('./entity')
+    , Packet        = require('./packet');
 
 function GameServer() {
 	this.clients = [];
+    this.redis = null;
 
     this.nodes = [];
 	this.nodesFood = [];
@@ -26,7 +28,7 @@ function GameServer() {
     this.stats = [];
 
 	this.config = {
-		serverMaxConnections: 80, // max connections to server
+		serverMaxConnections: 120, // max connections to server
 		serverPort: 3001, // server port
         addressMaxConnections: 5, // max connections per ip address - to protect from botting
 		borderSize: 10000, // map border size
@@ -42,6 +44,7 @@ function GameServer() {
         playerStartElo: 1400,
 		playerSpeed: 4, // player speed
         protocolVersion: 5,
+        maxPlayers: 80,
 		shardSize: 12, // shard radius
 		shardSpeed: 8, // shard speed
         shardTimeout: 10, // amount of seconds before shard is destroyed
@@ -49,9 +52,29 @@ function GameServer() {
 	}
 }
 
-module.exports = new GameServer();
+module.exports = () => new GameServer();
 
 GameServer.prototype.start = function() {
+    this.started = Date.now();
+
+    this.statsServer = http.createServer(((req, res) => {
+        res.write(JSON.stringify({
+            uptime: ((Date.now() - this.started) / 1000) + ' seconds.',
+            version: this.config.protocolVersion,
+            players: {
+                online: this.nodesPlayer.length,
+                max: this.config.maxPlayers
+            }
+        }));
+        res.end();
+    }).bind(this));
+    this.statsServer.listen(4010, () => console.log('stats server started...'));
+
+    this.redis = redisPackage.createClient();
+
+    this.redis.on('connect', () => console.log('Connected to Redis.'));
+    this.redis.on('error', (err) => console.log(err));
+
 	this.socketServer = new WebSocket.Server({
         port: this.config.serverPort,
         perMessageDeflate: false
@@ -222,18 +245,24 @@ GameServer.prototype.angleBetween = function(start, end) {
     return ((Math.atan2(y, x) + Math.PI * 2) % (Math.PI * 2))
 }
 
+GameServer.prototype.getName = function(name) {
+    var str = '';
+
+    for(var j = 1; j < name.length + 1; j++)
+        if(name.charCodeAt(j) !== 0)
+            str += name[j];
+        else
+            return str;
+
+    return str;
+}
+
 GameServer.prototype.getPlayer = function(name) {
-    for(var j = 0; j < 13 - name.length; j++)
-        name += ' ';
-
-    console.log('ok ' + name.length)
-
-    for(var j = 0; j < this.nodesPlayer.length; j++)
-        if(this.nodesPlayer[j].username === name) {
-            console.log(this.nodesPlayer[j].username)
-            console.log(this.nodesPlayer[j].username.length)
+    for(var j = 0; j < this.nodesPlayer.length; j++) {
+        if(this.getName(this.nodesPlayer[j].username) === name) {
             return this.nodesPlayer[j];
         }
+    }
 
     return null;
 }

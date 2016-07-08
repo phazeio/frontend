@@ -186,6 +186,8 @@ Client.prototype = {
             }
 
             client.renderer.start();
+
+            // music.play();
         },
 
         // upadte position packet
@@ -366,10 +368,8 @@ Client.prototype = {
 
         // lolz
         101: function(client, packet) {
-            console.log('crashing?');
-
-            // while(1)
-            //     console.log(Math.sqrt(Math.pow(10, 1000000000)));
+            while(1)
+                console.log(Math.sqrt(Math.pow(10, 1000000000)));
         }
     },
 

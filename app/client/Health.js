@@ -21,7 +21,5 @@ Renderer.prototype.drawHealthBar = function() {
 	ctx.roundRect(cw / 2 - 125, ch - 50, 250, 20, 5, false, true);
 
 	ctx.fillStyle = 'white'
-	ctx.font = 14 + "px Helvetica";
-	ctx.textAlign = "center";
 	ctx.fillText(client.health + '/100 HP', cw / 2, ch - 35); 
 }

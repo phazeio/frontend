@@ -28,7 +28,12 @@ function Renderer() {
 
 		window.addEventListener('resize', this.resize.bind(this));
 
-		this.canvas.addEventListener('mousedown', () => client.ws.send((new Packet.Shoot()).build()));
+		this.canvas.addEventListener('mousedown', (e) => {
+			// cancel text selection
+			e.preventDefault();
+
+			client.ws.send((new Packet.Shoot()).build())
+		});
 	}
 
 	this.stop = function() {
@@ -75,8 +80,6 @@ Renderer.prototype.drawEntity = function(e) {
 		return;
 
 	ctx.fillStyle = 'white'
-	ctx.font = 14 + "px Helvetica";
-	ctx.textAlign = "center";
 	ctx.fillText(e.health + '%', crds.x, crds.y + 3); 
 }
 
@@ -118,6 +121,10 @@ Renderer.prototype.updateCoords = function() {
 
 Renderer.prototype.mainLoop = function() {
 	this.drawLines();
+
+	
+	ctx.font = 12 + "px minecraft";
+	ctx.textAlign = "center";
 
 	for(var j = 0; j < client.entities.length; j++)
 		this.drawEntity(client.entities[j]);

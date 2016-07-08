@@ -28,7 +28,5 @@ Renderer.prototype.drawManaBar = function() {
 	ctx.roundRect(cw / 2 - 100, ch - 80, 200, 20, 5, false, true);
 
 	ctx.fillStyle = 'white'
-	ctx.font = 14 + "px Helvetica";
-	ctx.textAlign = "center";
 	ctx.fillText(client.mana + '/350 Mana', cw / 2, ch - 65); 
 }

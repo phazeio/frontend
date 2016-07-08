@@ -125,12 +125,16 @@ Player.prototype.calculateConsumption = function() {
 
 Player.prototype.eat = function() {
 	// eat
-	this.mana += 1;
+	this.modMana(1);
 
 	this.radius = this.gameServer.config.playerStartRadius + (0.15 * this.mana);
 
 	// var r = this.gameServer.playerStartRadius + (0.2 * this.mana);
 	// this.radius = r < this.gameServer.playerMaxRadius ? r : this.gameServer.playerMaxRadius;
+}
+
+Player.prototype.modMana = function(m) {
+	this.mana += m;
 }
 
 /*
@@ -210,7 +214,7 @@ Player.prototype.heal = function() {
 	if(this.health >= 100)
 		return;
 
-	this.mana -= 5;
+	this.modMana(-5);
 
 	this.health = this.health + 4 > 100 ? 100 : this.health + 4;
 	this.healing = true;
@@ -239,14 +243,6 @@ Player.prototype.alert = function(alert) {
 Player.prototype.sendPacket = function(packet) {
 	if(this.socket.readyState === 1)
 		this.socket.send(packet, {binary: true});
-
-	// try {
-	// 	this.socket.send(packet);
-	// } catch(err) {
-	// 	// async sending when closed issue hack fix
-	// 	if(err)
-	// 		return console.log(err);
-	// }
 }
 
 module.exports = Player;

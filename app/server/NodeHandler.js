@@ -16,6 +16,9 @@ NodeHandler.prototype.removeNode = function(node) {
 	// 	// some shit went wrong
 
 	this.gameServer.nodes.remove(node);
+
+	// clear its data
+	node = {};
 	// this.gameServer.nodes.splice(this.gameServer.nodes.indexOf(node), 1);
 }
 

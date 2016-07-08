@@ -49,6 +49,9 @@ PacketHandler.prototype.handleMessage = function(message) {
             if(buffer.byteLength !== 27)
                 return;
 
+            if(this.gameServer.nodesPlayer.length > this.gameServer.config.maxPlayers)
+                return;
+
             // --- HANDSHAKE ---
             if(this.socket.player) {
                 var player = this.socket.player;
