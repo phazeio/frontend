@@ -17,9 +17,38 @@ var express 		= require('express')
 	, websocket 	= require('websocket')
 	, http		 	= require('http').Server(app)
 	, Twitter 		= require("node-twitter-api")
-	, GameServer 	= require('./app/server/GameServer')();
+	, redis			= require('redis')
+	, morgan		= require('morgan')
+	, client 		= redis.createClient();
+	// , GameServer 	= require('./app/server/GameServer')();
 
+app.use(morgan('dev'));
 app.use(express.static(__dirname + '/public'));
+
+app.get('/get-server', (req, res) => {
+	client.hgetall('phaze:heartbeats', function(err, heartbeats) {
+		if(err)
+			return console.log(err);
+
+		client.hgetall('phaze:players', function(err, players) {
+			var bestServers = [];
+
+			for(prop in players)
+				if(heartbeats[prop] < Date.now() - 15000)
+					continue;
+				else
+					if(players[prop] > 80)
+						continue;
+					else
+						bestServers.push(prop);
+
+			if(bestServers.length === 0)
+				return res.json(null);
+			else
+				res.json(bestServers[Math.round(Math.random() * (bestServers.length - 1))]);
+		})
+	})
+})
 
 var Twitter = require("node-twitter-api");
 
@@ -43,13 +72,11 @@ app.get("/request-token", function(req, res) {
 });
 
 app.get('/success-token', function(req, res) {
-	res.send('<html><head><script src="js/jquery.js"></script><script>$(function() {$.post("/access-token" + location.search).done(function() {window.close()});});</script></head><body></body></html>');
+	res.send('<html><head><script src="js/jquery.js"></script><script>$(function() {$.get("/access-token" + location.search).done(function(user) {window.opener.userLoggedIn(user);});});</script></head><body></body></html>');
 })
 
 
-app.post("/access-token", function(req, res) {
-	console.log(req.connection.remoteAddress);
-
+app.get("/access-token", function(req, res) {
     var requestToken = req.query.oauth_token,
     verifier = req.query.oauth_verifier;
 
@@ -61,7 +88,6 @@ app.post("/access-token", function(req, res) {
                 if (err)
                     res.status(500).send(err);
                 else {
-                	console.log(user);
                     res.send(user);
                 }
             });
@@ -78,8 +104,10 @@ http.listen(3000, err => {
 	console.log('Running...')
 })
 
-GameServer.start();
+// GameServer.start();
 
+
+/*	commands	*/
 var commands = {
 	'list': function() {
 		var str = '';

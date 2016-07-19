@@ -7,7 +7,7 @@ var RGBToHex = function(r,g,b){
 
 function Client() {
     //you can change these values
-    this.debug            = 0;           //debug level, 0-5 (5 will output extremely lots of data)
+    this.debug            = 5;           //debug level, 0-5 (5 will output extremely lots of data)
     this.inactive_destroy = 5*60*1000;   //time in ms when to destroy inactive entities
     this.inactive_check   = 10*1000;     //time in ms when to search inactive entities
     this.spawn_interval   = 200;         //time in ms for respawn interval. 0 to disable (if your custom server don't have spawn problems)
@@ -18,6 +18,7 @@ function Client() {
     //     'Origin': ''
     // };
 
+    this.inGame            = false;
     this.renderer          = new Renderer(); // graphics center
 
     this.alerts            = [];   // alerts
@@ -39,10 +40,53 @@ function Client() {
     this.log = function(l) {
         console.log('Logged: ' + l);
     };
+
+    setTimeout(this.loadServer.bind(this), 3000);
 }
 
 Client.prototype = {
+    loadServer: function() {
+        var http = new XMLHttpRequest();
+        var url = "/get-server";
+
+        http.onreadystatechange = function() {
+            if (http.readyState == 4 && http.status == 200) {
+                setupGame(http.responseText);
+            }
+        };
+        http.open("GET", url, true);
+        http.send();
+
+        var self = this;
+
+        function setupGame(x) {
+            // console.log('loading...')
+            // if(x === 'null') 
+            //     return setTimeout(self.loadServer.bind(client), 3000);
+
+            // setup game
+            // console.log(x);
+            // x = x.split('"');
+            // x = x[1];
+
+            var nick = document.getElementById('nickname')
+            nick.placeholder = 'Nickname';
+            nick.disabled = false;
+
+            var playBtn = document.getElementById('play_button');
+            playBtn.disabled = false;
+            playBtn.className = 'enabled';
+
+            // x = x.split('undefined');
+            // var y = 'localhost' + x[1];
+
+            // client.connect('ws://' + y);
+            client.connect('ws://173.54.215.24:3001');
+        }
+    },
+
     connect: function(server) {
+        console.log(this);
         var opt = {
             headers: this.headers
         };
@@ -98,6 +142,9 @@ Client.prototype = {
         if(this.debug >= 1)
             this.log('disconnected');
 
+        this.renderer.stop();
+        startConnecting();
+        setTimeout(this.loadServer, 3000);
         this.reset();
     },
 
@@ -173,13 +220,13 @@ Client.prototype = {
     processors: {
         // handshake confirmation packet
         1: function(client, packet) {
-            client._id = packet.getUint16(1);
-            client.x = packet.getUint16(3);
-            client.y = packet.getUint16(5);
-            client.radius = packet.getUint16(7);
-            client.mana = packet.getUint16(9);
-            client.health = packet.getUint8(11);
-            client.color = {
+            client._id          = packet.getUint16(1);
+            client.x            = packet.getUint16(3);
+            client.y            = packet.getUint16(5);
+            client.radius       = packet.getUint16(7);
+            client.mana         = packet.getUint16(9);
+            client.health       = packet.getUint8(11);
+            client.color        = {
                 r: packet.getUint8(12),
                 g: packet.getUint8(13),
                 b: packet.getUint8(14)
@@ -187,25 +234,27 @@ Client.prototype = {
 
             client.renderer.start();
 
+            // music.volume = 0.5;
             // music.play();
+            this.inGame         = true;
         },
 
         // upadte position packet
         14: function(client, packet) {
-            client.x = packet.getUint16(1);
-            client.y = packet.getUint16(3);
-            client.radius = packet.getUint16(5);
-            client.mana = packet.getUint16(7);
-            client.health = packet.getUint8(9);
-            client.damage = packet.getUint8(10) === 1 ? true : false;
-            client.healing = packet.getUint8(11) === 1 ? true : false;
+            client.x            = packet.getUint16(1);
+            client.y            = packet.getUint16(3);
+            client.radius       = packet.getUint16(5);
+            client.mana         = packet.getUint16(7);
+            client.health       = packet.getUint8(9);
+            client.damage       = packet.getUint8(10) === 1 ? true : false;
+            client.healing      = packet.getUint8(11) === 1 ? true : false;
 
         },
 
         // update nodes packet
         20: function(client, packet) {
-            var len = packet.byteLength - 1; 
-            var entities = [];
+            var len         = packet.byteLength - 1,
+                entities    = [];
 
             // dynamic size
             for(var j = 0; j < len / 43; j++) {
@@ -226,18 +275,18 @@ Client.prototype = {
                 //     continue;
                 // }
 
-                node = {};
-                node._id = _id;
-                node.x = packet.getUint16(j * 43 + 2);
-                node.y = packet.getUint16(j * 43 + 4);
-                node.radius = packet.getUint16(j * 43 + 6);
-                node.health = packet.getUint8(j * 43 + 8);
-                node.damage = packet.getUint8(j * 43 + 9) === 1 ? true : false;
-                node.color = {};
-                node.color.r = packet.getUint8(j * 43 + 10);
-                node.color.g = packet.getUint8(j * 43 + 11);
-                node.color.b = packet.getUint8(j * 43 + 12);
-                node.updated = packet.getUint32(j * 43 + 13);
+                node            = {};
+                node._id        = _id;
+                node.x          = packet.getUint16(j * 43 + 2);
+                node.y          = packet.getUint16(j * 43 + 4);
+                node.radius     = packet.getUint16(j * 43 + 6);
+                node.health     = packet.getUint8(j * 43 + 8);
+                node.damage     = packet.getUint8(j * 43 + 9) === 1 ? true : false;
+                node.color      = {};
+                node.color.r    = packet.getUint8(j * 43 + 10);
+                node.color.g    = packet.getUint8(j * 43 + 11);
+                node.color.b    = packet.getUint8(j * 43 + 12);
+                node.updated    = packet.getUint32(j * 43 + 13);
 
                 entities.push(node);
             }
@@ -247,74 +296,74 @@ Client.prototype = {
 
         // spawn player
         21: function(client, packet) {
-            var node = {};
-            node._id = packet.getUint16(1); // nodeId
-            node.x = packet.getUint16(3); // x
-            node.y = packet.getUint16(5); // y
-            node.radius = packet.getUint8(7); // radius
-            node.health = packet.getUint8(8); // health
-            node.damage = (packet.getUint16(9) === 1 ? true : false)
-            node.healing = (packet.getUint16(10) === 1 ? true : false)
-            node.color = {};
-            node.color.r = packet.getUint8(11); // color red
-            node.color.g = packet.getUint8(12); // color green
-            node.color.b = packet.getUint8(13); // color blue
+            var node            = {};
+            node._id            = packet.getUint16(1); // nodeId
+            node.x              = packet.getUint16(3); // x
+            node.y              = packet.getUint16(5); // y
+            node.radius         = packet.getUint8(7); // radius
+            node.health         = packet.getUint8(8); // health
+            node.damage         = (packet.getUint16(9) === 1 ? true : false)
+            node.healing        = (packet.getUint16(10) === 1 ? true : false)
+            node.color          = {};
+            node.color.r        = packet.getUint8(11); // color red
+            node.color.g        = packet.getUint8(12); // color green
+            node.color.b        = packet.getUint8(13); // color blue
 
             client.entities.push(node);
         },
 
         // spawn non player
         22: function(client, packet) {
-            var node = {};
-            node._id = packet.getUint16(1); // nodeId
-            node.x = packet.getUint16(3); // x
-            node.y = packet.getUint16(5); // y
-            node.radius = packet.getUint8(7); // radius
-            node.color = {};
-            node.color.r = packet.getUint8(8); // color red
-            node.color.g = packet.getUint8(9); // color green
-            node.color.b = packet.getUint8(10); // color blue
+            var node            = {};
+            node._id            = packet.getUint16(1); // nodeId
+            node.x              = packet.getUint16(3); // x
+            node.y              = packet.getUint16(5); // y
+            node.radius         = packet.getUint8(7); // radius
+            node.color          = {};
+            node.color.r        = packet.getUint8(8); // color red
+            node.color.g        = packet.getUint8(9); // color green
+            node.color.b        = packet.getUint8(10); // color blue
 
             client.entities.push(node);
         },
 
         // update player
         23: function(client, packet) {
-            var _id = packet.getUint16(1);
+            var _id             = packet.getUint16(1);
 
-            var node = client.findEntity(_id);
+            var node            = client.findEntity(_id);
 
             // well... something is fuckin wrong
             if(!node)
                 return;
 
-            node.x = packet.getUint16(3);
-            node.y = packet.getUint16(5);
-            node.radius = packet.getUint8(7);
-            node.health = packet.getUint8(8);
-            node.damage = (packet.getUint8(9) === 1 ? true : false)
-            node.healing = (packet.getUint8(10) === 1 ? true : false)
+            node.x              = packet.getUint16(3);
+            node.y              = packet.getUint16(5);
+            node.radius         = packet.getUint8(7);
+            node.health         = packet.getUint8(8);
+            node.damage         = (packet.getUint8(9) === 1 ? true : false)
+            node.healing        = (packet.getUint8(10) === 1 ? true : false)
         },
 
         // update non player
         24: function(client, packet) {
-            var _id = packet.getUint16(1);
+            var _id             = packet.getUint16(1);
 
-            var node = client.findEntity(_id);
+            var node            = client.findEntity(_id);
 
             // well... something is fuckin wrong
             if(!node)
                 return;
 
-            node.x = packet.getUint16(3);
-            node.y = packet.getUint16(5);
+            node.x              = packet.getUint16(3);
+            node.y              = packet.getUint16(5);
         },
 
         // drop node
         25: function(client, packet) {
-            var _id = packet.getUint16(1);
+            var _id             = packet.getUint16(1);
 
-            var node = client.findEntity(_id);
+            var node            = client.findEntity(_id);
 
             // well... something is fuckin wrong...
             if(!node)
@@ -325,8 +374,8 @@ Client.prototype = {
 
 
         40: function(client, packet) {
-            var len = packet.byteLength - 1
-                , leaders = [];
+            var len             = packet.byteLength - 1
+                , leaders       = [];
 
 
             for(var j = 0; j < len / 31; j++) {
@@ -335,14 +384,14 @@ Client.prototype = {
                 for(var i = 0; i < 26; i+=2)
                     player.username += String.fromCharCode(packet.getUint16((j * 31 + 1 + i)));
 
-                player.score = packet.getUint16(j * 31 + 1 + 26);
-                player._id = packet.getUint16(j * 31 + 1 + 28);
+                player.score    = packet.getUint16(j * 31 + 1 + 26);
+                player._id      = packet.getUint16(j * 31 + 1 + 28);
 
 
                 leaders.push(player);
             }
 
-            client.leaders = leaders;
+            client.leaders      = leaders;
             client.updateLeaders(leaders);
         },
 
@@ -353,12 +402,13 @@ Client.prototype = {
 
         // death packet
         90: function(client, packet) {
+            this.inGame         = false;
             client.renderer.stop();
         },
 
         // alert
         100: function(client, packet) {
-            var alert = '';
+            var alert           = '';
 
             for(var j = 1; j < packet.byteLength; j+=2)
                 alert += String.fromCharCode(packet.getUint16(j));
@@ -405,4 +455,3 @@ Client.prototype = {
 }
 
 window.client = new Client();
-client.connect('ws://localhost:3001/');

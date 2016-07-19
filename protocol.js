@@ -28,10 +28,11 @@
 22 - spawn non player *
 23 - update player *
 24 - update nonplayer *
-25 - drop node
+25 - drop node *
 40 - stats *
 90 - die *
 100 - alert *
+101 - crash *
 
 spawn entitiy when it gets into view
 

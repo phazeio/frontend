@@ -6,10 +6,6 @@ function Renderer() {
 		width: document.documentElement.clientHeight / window.outerHeight
 	}
 
-	this.canvas.addEventListener('mousemove', function(e) {
-		client.ws.send((new Packet.MouseMove(e)).build());
-	})
-
 	// so anything can access the context
 	window.ctx = this.canvas.getContext('2d');
 	ctx.lineWidth = 5;
@@ -28,11 +24,25 @@ function Renderer() {
 
 		window.addEventListener('resize', this.resize.bind(this));
 
+		this.canvas.addEventListener('mousemove', function(e) {
+		client.ws.send((new Packet.MouseMove(e)).build());
+	})
+
 		this.canvas.addEventListener('mousedown', (e) => {
 			// cancel text selection
 			e.preventDefault();
 
-			client.ws.send((new Packet.Shoot()).build())
+			switch(e.which) {
+				case 1:
+					client.ws.send((new Packet.Shoot()).build());
+					break;
+				case 3:
+					client.ws.send((new Packet.Heal()).build());
+					break
+				default:
+					// idk
+					break;
+			}
 		});
 	}
 
@@ -84,6 +94,8 @@ Renderer.prototype.drawEntity = function(e) {
 }
 
 Renderer.prototype.drawLines = function() {
+	var zoom = 1 + (1 - document.documentElement.clientWidth / window.outerWidth);
+
 	// check zoom
 	ctx.fillStyle = '#f2f2f2';
 	ctx.fillRect(0,0,window.outerWidth,window.outerHeight);
@@ -101,7 +113,7 @@ Renderer.prototype.drawLines = function() {
 	for (var j = start; j < stop; j+=100) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
 		var x = window.outerWidth / 2 - (client.x - j);
-		ctx.fillRect(x, 0, 0.3, window.innerHeight);
+		ctx.fillRect(x, 0, 0.3, window.innerHeight * zoom);
 	}
 
 	start = ~~((client.y - 1000) / 100) * 100
@@ -110,7 +122,7 @@ Renderer.prototype.drawLines = function() {
 	for (var j = start; j < stop; j+=100) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
 		var y = window.outerHeight / 2 - (client.y - j);
-		ctx.fillRect(0, y, window.innerWidth, 0.3);
+		ctx.fillRect(0, y, window.innerWidth * zoom, 0.3);
 	}
 }
 
@@ -173,5 +185,7 @@ Renderer.prototype.resize = function() {
 
 
 	var zoom = document.documentElement.clientWidth / window.outerWidth;
+
+	console.log(zoom)
 	ctx.scale(zoom, zoom);
 }

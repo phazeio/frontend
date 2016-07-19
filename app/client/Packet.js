@@ -60,5 +60,19 @@ var Packet = {
 
 			return buf;
 		}
+	},
+
+	// ranked match queue join
+	JoinQueue: function(id) {
+		this.build = function() {
+			var buf = new ArrayBuffer()
+				, view = new DataView(buf);
+
+			// set packet id to 5
+			view.setUint8(0, 5);
+			view.setUint32(1, id);
+
+			return buf;
+		}
 	}
 }
