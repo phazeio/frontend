@@ -81,7 +81,7 @@ Client.prototype = {
             // var y = 'localhost' + x[1];
 
             // client.connect('ws://' + y);
-            client.connect('ws://173.54.215.24:3001');
+            client.connect('ws://localhost:3001');
         }
     },
 
@@ -164,13 +164,12 @@ Client.prototype = {
     },
 
     // Had to do this because sometimes packets somehow get moving by 1 byte
-    // https://github.com/pulviscriptor/agario-client/issues/46#issuecomment-169764771
     onPacketError: function(packet, err) {
         var crash = true;
 
         if(crash) {
             if(this.debug >= 1)
-                this.log('Packet error detected! Check packetError event in README.md');
+                this.log('Packet error');
             throw err;
         }
     },
@@ -189,10 +188,9 @@ Client.prototype = {
         if(this.debug >= 3)
             this.log('reset()');
 
-        clearInterval(this.inactive_interval);
-        clearInterval(this.spawn_interval_id);
-        this.leaders           = [];
-        this.my_balls          = [];
+        this.renderer.stop();
+        clearInterval(conInt);
+        this.entities          = [];
         this.spawn_attempt     = 0;
 
         for(var k in this.balls) if(this.balls.hasOwnProperty(k)) this.balls[k].destroy({'reason':'reset'});
@@ -437,7 +435,7 @@ Client.prototype = {
             str += '<li>' 
             + '<span>' + (j + 1) + '. </span>'
             + '<span ' + (leaders[j]._id === client._id ? 'style="color: #ff4d4d; font-weight: 900"' : '') + '>' + this.validateName(leaders[j].username) + '</span>' 
-            + '<span>' + leaders[j].score + ' elo</span>' 
+            + '<span>' + leaders[j].score + '</span>' 
             + '</li>';
 
         document.getElementById('leaderboard').innerHTML = str;

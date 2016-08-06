@@ -115,10 +115,12 @@ function startConnecting() {
 	connectingAnimation();	
 }
 
+var conInt;
+
 function connectingAnimation() {
 	var j = true;
 
-	var conInt = setInterval(connecting, 500);
+	conInt = setInterval(connecting, 500);
 
 	function connecting() {
 		var nick = document.getElementById('nickname');
