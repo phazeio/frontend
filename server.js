@@ -50,6 +50,10 @@ app.get('/get-server', (req, res) => {
 	})
 })
 
+app.get('/ranked-match', (req, res) => {
+	
+})
+
 var Twitter = require("node-twitter-api");
 
 var twitter = new Twitter({
@@ -97,7 +101,7 @@ app.get("/access-token", function(req, res) {
 app.get('*', (req, res) => res.sendFile(__dirname + '/index.html'));
 // app.get('*', (req, res) => res.json(404));
 
-http.listen(3000, err => {
+http.listen(3003, err => {
 	if(err)
 		return console.log(err);
 

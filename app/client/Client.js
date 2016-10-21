@@ -42,6 +42,7 @@ function Client() {
     };
 
     setTimeout(this.loadServer.bind(this), 3000);
+    // this.connect('ws://localhost:3001');
 }
 
 Client.prototype = {
@@ -81,7 +82,7 @@ Client.prototype = {
             // var y = 'localhost' + x[1];
 
             // client.connect('ws://' + y);
-            client.connect('ws://173.54.215.24:3001');
+            client.connect('ws://localhost:3001');
         }
     },
 
@@ -126,7 +127,7 @@ Client.prototype = {
         // this.inactive_interval = setInterval(this.destroyInactive.bind(this), this.inactive_check);
 
         if(this.ws.readyState !== WebSocket.OPEN) { //`ws` bug https://github.com/websockets/ws/issues/669 `Crash 2`
-            this.onPacketError(new Packet(buf), new Error('ws bug #669:crash2 detected, `onopen` called with not established connection'));
+            console.log('Crashed...?');
             return;
         }
     },
@@ -134,8 +135,6 @@ Client.prototype = {
     onError: function(e) {
         if(this.debug >= 1)
             this.log('connection error: ' + e);
-
-        this.reset();
     },
 
     onDisconnect: function() {
@@ -158,6 +157,9 @@ Client.prototype = {
         var buf = e.data;
         var packet = new DataView(buf);
         var packetId = packet.getUint8(0);
+
+        if(packetId === 30)
+            console.log('yes!')
 
         if(this.processors[packetId])
             this.processors[packetId](this, packet); 
@@ -183,38 +185,6 @@ Client.prototype = {
             this.log('dump: ' + (new Packet(buf).toString()));
 
         this.ws.send(buf);
-    },
-
-    reset: function() {
-        if(this.debug >= 3)
-            this.log('reset()');
-
-        clearInterval(this.inactive_interval);
-        clearInterval(this.spawn_interval_id);
-        this.leaders           = [];
-        this.my_balls          = [];
-        this.spawn_attempt     = 0;
-
-        for(var k in this.balls) if(this.balls.hasOwnProperty(k)) this.balls[k].destroy({'reason':'reset'});
-    },
-
-    destroyInactive: function() {
-        var time = (+new Date);
-
-        if(this.debug >= 3)
-            this.log('destroying inactive balls');
-
-        for(var k in this.entities) {
-            if(!this.balls.hasOwnProperty(k)) continue;
-            var ball = this.balls[k];
-            if(time - ball.last_update < this.inactive_destroy) continue;
-            if(ball.visible) continue;
-
-            if(this.debug >= 3)
-                this.log('destroying inactive ' + ball);
-
-            ball.destroy({reason: 'inactive'});
-        }
     },
 
     processors: {
@@ -359,8 +329,40 @@ Client.prototype = {
             node.y              = packet.getUint16(5);
         },
 
-        // drop node
+        // update v2
         25: function(client, packet) {
+            console.log('hey!');
+            // var players         = packet.getUint16(1)
+            //     , nonPlayers    = (packet.length - players * 10 - 2) / 6;
+
+            // for(var j = 0; j < players; j++) {
+            //     var _id         = packet.getUint16(j * 10 + 2)
+            //         , node      = client.findEntity(_id);
+
+            //     // well... something is fuckin wrong
+            //     if(!node)
+            //         return;
+
+            //     node.x          = packet.getUint16(j * 10 + 4);
+            //     node.y          = packet.getUint16(j * 10 + 6);
+            //     node.radius     = packet.getUint8(j * 10 + 8);
+            //     node.health     = packet.getUint8(j * 10 + 9);
+            //     node.damage     = (packet.getUint8(j * 10 + 10) === 1 ? true : false)
+            //     node.healing    = (packet.getUint8(j * 10 + 11) === 1 ? true : false)
+            // }
+
+
+            // for(var j = 0; j < nonPlayers; j++) {
+            //     var _id         = view.getUint16(j * 6 + (10 * players) + 2) // nodeId
+            //         , node      = client.findEntity(_id);
+
+            //     node.x          = view.getUint16(j * 6 + (10 * players) + 4); // x
+            //     node.y          = view.getUint16(j * 6 + (10 * players) + 6); // y
+            // }
+        },
+
+        // drop node
+        30: function(client, packet) {
             var _id             = packet.getUint16(1);
 
             var node            = client.findEntity(_id);
@@ -368,6 +370,7 @@ Client.prototype = {
             // well... something is fuckin wrong...
             if(!node)
                 return;
+
 
             client.entities.splice(client.entities.indexOf(node), 1);
         },
@@ -394,12 +397,7 @@ Client.prototype = {
             client.leaders      = leaders;
             client.updateLeaders(leaders);
         },
-
-        // test packet
-        30: function(client, packet) {
-            console.log('test!!');
-        },
-
+s
         // death packet
         90: function(client, packet) {
             this.inGame         = false;
@@ -437,7 +435,7 @@ Client.prototype = {
             str += '<li>' 
             + '<span>' + (j + 1) + '. </span>'
             + '<span ' + (leaders[j]._id === client._id ? 'style="color: #ff4d4d; font-weight: 900"' : '') + '>' + this.validateName(leaders[j].username) + '</span>' 
-            + '<span>' + leaders[j].score + ' elo</span>' 
+            + '<span>' + leaders[j].score + '</span>' 
             + '</li>';
 
         document.getElementById('leaderboard').innerHTML = str;

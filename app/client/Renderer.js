@@ -55,6 +55,8 @@ function Renderer() {
 	}
 }
 
+Renderer.prototype.getZoom = () => document.documentElement.clientWidth / window.outerWidth;
+
 Renderer.prototype.drawEntity = function(e) {
 	// console.log(e.x);
 	// console.log(e.y);
@@ -112,7 +114,7 @@ Renderer.prototype.drawLines = function() {
 
 	for (var j = start; j < stop; j+=100) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
-		var x = window.outerWidth / 2 - (client.x - j);
+		var x = window.innerWidth / 2 - (client.x - j);
 		ctx.fillRect(x, 0, 0.3, window.innerHeight * zoom);
 	}
 
@@ -121,7 +123,7 @@ Renderer.prototype.drawLines = function() {
 
 	for (var j = start; j < stop; j+=100) {
 		ctx.fillStyle = (j === 0 || j === 10000) ? 'red' : '#333333';
-		var y = window.outerHeight / 2 - (client.y - j);
+		var y = window.innerHeight / 2 - (client.y - j);
 		ctx.fillRect(0, y, window.innerWidth * zoom, 0.3);
 	}
 }
