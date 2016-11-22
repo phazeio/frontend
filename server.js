@@ -25,10 +25,12 @@ var express 		= require('express')
 app.use(morgan('dev'));
 app.use(express.static(__dirname + '/public'));
 
+
 app.get('/get-server', (req, res) => {
 	client.hgetall('phaze:heartbeats', function(err, heartbeats) {
 		if(err)
 			return console.log(err);
+
 
 		client.hgetall('phaze:players', function(err, players) {
 			var bestServers = [];
@@ -44,11 +46,12 @@ app.get('/get-server', (req, res) => {
 
 			if(bestServers.length === 0)
 				return res.json(null);
-			else
+			else 
 				res.json(bestServers[Math.round(Math.random() * (bestServers.length - 1))]);
 		})
 	})
 })
+
 
 app.get('/ranked-match', (req, res) => {
 	
@@ -101,7 +104,7 @@ app.get("/access-token", function(req, res) {
 app.get('*', (req, res) => res.sendFile(__dirname + '/index.html'));
 // app.get('*', (req, res) => res.json(404));
 
-http.listen(3003, err => {
+http.listen(3000, err => {
 	if(err)
 		return console.log(err);
 

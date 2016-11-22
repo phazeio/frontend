@@ -99,7 +99,7 @@ Renderer.prototype.drawLines = function() {
 	var zoom = 1 + (1 - document.documentElement.clientWidth / window.outerWidth);
 
 	// check zoom
-	ctx.fillStyle = '#f2f2f2';
+	ctx.fillStyle = '#222';
 	ctx.fillRect(0,0,window.outerWidth,window.outerHeight);
 
 	ctx.fillStyle = '#333333';

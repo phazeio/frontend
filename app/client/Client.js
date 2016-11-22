@@ -42,7 +42,6 @@ function Client() {
     };
 
     setTimeout(this.loadServer.bind(this), 3000);
-    // this.connect('ws://localhost:3001');
 }
 
 Client.prototype = {
@@ -61,6 +60,7 @@ Client.prototype = {
         var self = this;
 
         function setupGame(x) {
+            console.log(x);
             // console.log('loading...')
             // if(x === 'null') 
             //     return setTimeout(self.loadServer.bind(client), 3000);
@@ -81,7 +81,6 @@ Client.prototype = {
             // x = x.split('undefined');
             // var y = 'localhost' + x[1];
 
-            // client.connect('ws://' + y);
             client.connect('ws://localhost:3001');
         }
     },
@@ -157,9 +156,6 @@ Client.prototype = {
         var buf = e.data;
         var packet = new DataView(buf);
         var packetId = packet.getUint8(0);
-
-        if(packetId === 30)
-            console.log('yes!')
 
         if(this.processors[packetId])
             this.processors[packetId](this, packet); 
@@ -331,34 +327,33 @@ Client.prototype = {
 
         // update v2
         25: function(client, packet) {
-            console.log('hey!');
-            // var players         = packet.getUint16(1)
-            //     , nonPlayers    = (packet.length - players * 10 - 2) / 6;
+            var players         = packet.getUint8(1)
+                , nonPlayers    = (packet.buffer.byteLength - players * 10 - 2) / 6;
 
-            // for(var j = 0; j < players; j++) {
-            //     var _id         = packet.getUint16(j * 10 + 2)
-            //         , node      = client.findEntity(_id);
+            for(var j = 0; j < players; j++) {
+                var _id         = packet.getUint16(j * 10 + 2)
+                    , node      = client.findEntity(_id);
 
-            //     // well... something is fuckin wrong
-            //     if(!node)
-            //         return;
+                // well... something is fuckin wrong
+                if(!node)
+                    return;
 
-            //     node.x          = packet.getUint16(j * 10 + 4);
-            //     node.y          = packet.getUint16(j * 10 + 6);
-            //     node.radius     = packet.getUint8(j * 10 + 8);
-            //     node.health     = packet.getUint8(j * 10 + 9);
-            //     node.damage     = (packet.getUint8(j * 10 + 10) === 1 ? true : false)
-            //     node.healing    = (packet.getUint8(j * 10 + 11) === 1 ? true : false)
-            // }
+                node.x          = packet.getUint16(j * 10 + 4);
+                node.y          = packet.getUint16(j * 10 + 6);
+                node.radius     = packet.getUint8(j * 10 + 8);
+                node.health     = packet.getUint8(j * 10 + 9);
+                node.damage     = (packet.getUint8(j * 10 + 10) === 1 ? true : false)
+                node.healing    = (packet.getUint8(j * 10 + 11) === 1 ? true : false)
+            }
 
 
-            // for(var j = 0; j < nonPlayers; j++) {
-            //     var _id         = view.getUint16(j * 6 + (10 * players) + 2) // nodeId
-            //         , node      = client.findEntity(_id);
+            for(var j = 0; j < nonPlayers; j++) {
+                var _id         = packet.getUint16(j * 6 + (10 * players) + 2) // nodeId
+                    , node      = client.findEntity(_id);
 
-            //     node.x          = view.getUint16(j * 6 + (10 * players) + 4); // x
-            //     node.y          = view.getUint16(j * 6 + (10 * players) + 6); // y
-            // }
+                node.x          = packet.getUint16(j * 6 + (10 * players) + 4); // x
+                node.y          = packet.getUint16(j * 6 + (10 * players) + 6); // y
+            }
         },
 
         // drop node
@@ -397,7 +392,7 @@ Client.prototype = {
             client.leaders      = leaders;
             client.updateLeaders(leaders);
         },
-s
+
         // death packet
         90: function(client, packet) {
             this.inGame         = false;
