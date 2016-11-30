@@ -19,8 +19,10 @@ var express 		= require('express')
 	, Twitter 		= require("node-twitter-api")
 	, redis			= require('redis')
 	, morgan		= require('morgan')
-	, client 		= redis.createClient();
+	, client 		= redis.createClient(6379, '158.69.122.15');
 	// , GameServer 	= require('./app/server/GameServer')();
+
+client.auth('4f6e8c1199fa3d7eab27645b36d4986cea0dcb09');
 
 app.use(morgan('dev'));
 app.use(express.static(__dirname + '/public'));
@@ -50,6 +52,27 @@ app.get('/get-server', (req, res) => {
 				res.json(bestServers[Math.round(Math.random() * (bestServers.length - 1))]);
 		})
 	})
+})
+
+app.get('/get-players', (req, res) => {
+	var players = 0;
+
+	client.hgetall('phaze:heartbeats', function(err, heartbeats) {
+		if(err)
+			return console.log(err);
+
+
+		client.hgetall('phaze:players', function(err, players) {
+			for(prop in players)
+				if(heartbeats[prop] < Date.now() - 15000)
+					continue;
+				else
+					players += players[prop];
+
+			return res.json(players);
+		})
+	})
+
 })
 
 

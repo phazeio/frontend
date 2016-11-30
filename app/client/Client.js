@@ -62,11 +62,10 @@ Client.prototype = {
         function setupGame(x) {
             console.log(x);
             // console.log('loading...')
-            // if(x === 'null') 
-            //     return setTimeout(self.loadServer.bind(client), 3000);
+            if(x === 'null') 
+                return setTimeout(self.loadServer.bind(client), 3000);
 
             // setup game
-            // console.log(x);
             // x = x.split('"');
             // x = x[1];
 
@@ -78,10 +77,7 @@ Client.prototype = {
             playBtn.disabled = false;
             playBtn.className = 'enabled';
 
-            // x = x.split('undefined');
-            // var y = 'localhost' + x[1];
-
-            client.connect('ws://localhost:3001');
+            client.connect('ws://' + x);
         }
     },
 
