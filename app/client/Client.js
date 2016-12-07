@@ -60,11 +60,13 @@ Client.prototype = {
         var self = this;
 
         function setupGame(x) {
-            if(x === 'null') 
+            var info;
+            try {
+                info = JSON.parse(x);
+            } catch(error) {
                 return setTimeout(self.loadServer.bind(client), 3000);
+            }
 
-            var info = JSON.parse(x);
-            console.log(info);
             console.log(info.server);
             // console.log('loading...')
 
