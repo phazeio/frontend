@@ -49,7 +49,7 @@ app.get('/get-server', (req, res) => {
 			if(bestServers.length === 0)
 				return res.json(null);
 			else 
-				res.json(bestServers[Math.round(Math.random() * (bestServers.length - 1))]);
+				res.json({server: bestServers[Math.round(Math.random() * (bestServers.length - 1))]});
 		})
 	})
 })

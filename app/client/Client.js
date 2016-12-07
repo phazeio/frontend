@@ -61,6 +61,7 @@ Client.prototype = {
 
         function setupGame(x) {
             console.log(x);
+            x = JSON.parse(x);
             // console.log('loading...')
             if(x === 'null') 
                 return setTimeout(self.loadServer.bind(client), 3000);
@@ -77,7 +78,7 @@ Client.prototype = {
             playBtn.disabled = false;
             playBtn.className = 'enabled';
 
-            client.connect('ws://' + x);
+            client.connect('ws://' + x.server);
         }
     },
 
