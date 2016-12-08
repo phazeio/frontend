@@ -47,11 +47,22 @@ window.onload = function() {
 		click.play();
 	})
 
+	// health packet
+	var wasPressed = false;
+	window.addEventListener('keydown', function(e) {
+		if(e.keyCode !== 32 || wasPressed)
+			return;
+
+		client.ws.send((new Packet.Heal()).build());
+		wasPressed = true;
+	});
+
 	window.addEventListener('keyup', function(e) {
 		if(e.keyCode !== 32)
 			return;
 
-		client.ws.send((new Packet.Heal()).build());
+		wasPressed = false;
+		
 	});
 
 	// var play_btn = document.getElementById('play_btn')

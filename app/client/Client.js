@@ -361,6 +361,9 @@ Client.prototype = {
                 var _id         = packet.getUint16(j * 6 + (10 * players) + 2) // nodeId
                     , node      = client.findEntity(_id);
 
+                if(!node)
+                    return;
+
                 node.x          = packet.getUint16(j * 6 + (10 * players) + 4); // x
                 node.y          = packet.getUint16(j * 6 + (10 * players) + 6); // y
             }
@@ -381,6 +384,7 @@ Client.prototype = {
         },
 
 
+        // leaderboard
         40: function(client, packet) {
             var len             = packet.byteLength - 1
                 , leaders       = [];
