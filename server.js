@@ -19,10 +19,36 @@ var express 		= require('express')
 	, Twitter 		= require("node-twitter-api")
 	, redis			= require('redis')
 	, morgan		= require('morgan')
-	, client 		= redis.createClient(6379, '158.69.122.15');
-	// , GameServer 	= require('./app/server/GameServer')();
+	, jsonfile 		= require('jsonfile');
 
-client.auth('4f6e8c1199fa3d7eab27645b36d4986cea0dcb09');
+var configFile 		= __dirname + '/config/config.json'
+	, config;
+try {
+	config  		= jsonfile.readFileSync(configFile);
+} catch(err) {
+	console.log(err);
+}
+
+// no config exists, so create one
+if(!config) {
+	config = {
+		redis: {
+			address: '127.0.0.1',
+			port: 6379,
+			password: 'haiku'
+		},
+
+		port: 80
+	}
+
+	jsonfile.writeFileSync(configFile, config);
+}
+
+// var client 			= redis.createClient(6379, '158.69.122.15');
+// client.auth('4f6e8c1199fa3d7eab27645b36d4986cea0dcb09');
+var client 			= redis.createClient(config.redis.port, config.redis.address);
+client.auth(config.redis.password);
+
 
 app.use(morgan('dev'));
 app.use(express.static(__dirname + '/public'));
@@ -127,7 +153,7 @@ app.get("/access-token", function(req, res) {
 app.get('*', (req, res) => res.sendFile(__dirname + '/index.html'));
 // app.get('*', (req, res) => res.json(404));
 
-http.listen(3000, err => {
+http.listen(config.port, err => {
 	if(err)
 		return console.log(err);
 
@@ -138,85 +164,85 @@ http.listen(3000, err => {
 
 
 /*	commands	*/
-var commands = {
-	'list': function() {
-		var str = '';
+// var commands = {
+// 	'list': function() {
+// 		var str = '';
 
-		str += '[ ' + GameServer.nodesPlayer.length + ' / ' + GameServer.config.serverMaxConnections + ' ] Shooters Online\n';
-		if(GameServer.nodesPlayer.length === 0)
-			str += 'No shooters currently online...';
-		else
-			GameServer.nodesPlayer.forEach(p => str += p.username ? p.username + ', ' : 'an unamed shooter, ');
+// 		str += '[ ' + GameServer.nodesPlayer.length + ' / ' + GameServer.config.serverMaxConnections + ' ] Shooters Online\n';
+// 		if(GameServer.nodesPlayer.length === 0)
+// 			str += 'No shooters currently online...';
+// 		else
+// 			GameServer.nodesPlayer.forEach(p => str += p.username ? p.username + ', ' : 'an unamed shooter, ');
 		
-		console.log(str);
-	},
+// 		console.log(str);
+// 	},
 
-	'nodes': function() {
-		var str = '';
+// 	'nodes': function() {
+// 		var str = '';
 
-		str += '[ ' + GameServer.nodes.length + ' ] Nodes Active\n';
+// 		str += '[ ' + GameServer.nodes.length + ' ] Nodes Active\n';
 
-		if(GameServer.nodes.length === 0)
-			str += 'No nodes currently active...';
-		else
-			GameServer.nodes.forEach(n => str += n.username ? n.username + ', ' : 'NpN, ');
+// 		if(GameServer.nodes.length === 0)
+// 			str += 'No nodes currently active...';
+// 		else
+// 			GameServer.nodes.forEach(n => str += n.username ? n.username + ', ' : 'NpN, ');
 
-		console.log(str);
-	},
+// 		console.log(str);
+// 	},
 
-	'clients': function() {
-		var str = '';
+// 	'clients': function() {
+// 		var str = '';
 
-		str += '[ ' + GameServer.clients.length + ' ] Clients Connected';
+// 		str += '[ ' + GameServer.clients.length + ' ] Clients Connected';
 
-		console.log(str);
-	},
+// 		console.log(str);
+// 	},
 
-	'alert': function(alert) {
-		GameServer.alert(alert);
+// 	'alert': function(alert) {
+// 		GameServer.alert(alert);
 
-		console.log('[ Alert ] Alerted: ' + alert);
-	},
+// 		console.log('[ Alert ] Alerted: ' + alert);
+// 	},
 
-	'crash': function(name) {
-		console.log(' [ Crash ] Attempting to crash ' + name);
-		GameServer.crash(name);
-	},
+// 	'crash': function(name) {
+// 		console.log(' [ Crash ] Attempting to crash ' + name);
+// 		GameServer.crash(name);
+// 	},
 
-	'help': function() {
-		var str = '';
+// 	'help': function() {
+// 		var str = '';
 
-		str += '-------------------------------------------------------------';
-		str += '\n  • help := list help commands';
-		str += '\n  • list := list online shooters';
-		str += '\n  • clients := list connected clients';
-		str += '\n  • nodes := list all nodes';
-		str += '\n  • alert <alert> := alert message to all shooters';
-		str += '\n  • crash <name> := for the lolz';
-		str += '\n-------------------------------------------------------------';
+// 		str += '-------------------------------------------------------------';
+// 		str += '\n  • help := list help commands';
+// 		str += '\n  • list := list online shooters';
+// 		str += '\n  • clients := list connected clients';
+// 		str += '\n  • nodes := list all nodes';
+// 		str += '\n  • alert <alert> := alert message to all shooters';
+// 		str += '\n  • crash <name> := for the lolz';
+// 		str += '\n-------------------------------------------------------------';
 
-		console.log(str);
-	}
-}
+// 		console.log(str);
+// 	}
+// }
 
-process.stdin.resume();
-process.stdin.setEncoding('utf8');
-var util = require('util');
+// process.stdin.resume();
+// process.stdin.setEncoding('utf8');
+// var util = require('util');
 
-process.stdin.on('data', function (text) {
-	text = text.slice(0, text.indexOf('\n'));
-	text = text.split(' ');
-	if(commands[text[0]])
-		commands[text[0]](text.slice(1, text.length).join(' '));
-	else
-		console.log('Unknown command. Type /help for help.');
+// process.stdin.on('data', function (text) {
+// 	text = text.slice(0, text.indexOf('\n'));
+// 	text = text.split(' ');
+// 	if(commands[text[0]])
+// 		commands[text[0]](text.slice(1, text.length).join(' '));
+// 	else
+// 		console.log('Unknown command. Type /help for help.');
 
-	if (text === 'quit\n') {
-	  done();
-	}
-});
+// 	if (text === 'quit\n') {
+// 	  done();
+// 	}
+// });
 
-function done() {
-	console.log('Now that process.stdin is paused, there is nothing more to do.');
-	process.exit();
-}
+// function done() {
+// 	console.log('Now that process.stdin is paused, there is nothing more to do.');
+// 	process.exit();
+// }

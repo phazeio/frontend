@@ -68,11 +68,6 @@ Client.prototype = {
             }
 
             console.log(info.server);
-            // console.log('loading...')
-
-            // setup game
-            // x = x.split('"');
-            // x = x[1];
 
             var nick = document.getElementById('nickname')
             nick.placeholder = 'Nickname';
