@@ -36,6 +36,7 @@
 
 	.wrapper {
 		display: none;
+		position: relative;
 		z-index: 1000;
 	}
 
@@ -190,6 +191,12 @@
 	.thumbnail {
 		margin: 0;
 	}
+
+	.player-count {
+		position: absolute;
+		bottom: 10;
+		left: 10;
+	}
 </style>
 <body>
 	<div class="wrapper">
@@ -256,7 +263,9 @@
 				<a href="https://reddit.com/r/phaze"><button class="enabled" style="width: 32%">REDDIT</button></a>
 			</div>
 
-			
+			<div class="player-count">
+				<p><b style="color: #cc0099" id="player-count">nill</b> Players Online.</p>
+			</div>
 		</div>
 	</div>
 </body>

@@ -157,3 +157,19 @@ function connectingAnimation() {
 		}
 	}
 }
+
+function getPlayers() {
+	var http = new XMLHttpRequest();
+    var url = "/get-players";
+
+    http.onreadystatechange = function() {
+        if (http.readyState == 4 && http.status == 200) {
+            document.getElementById('player-count').innerHTML = http.responseText;
+        }
+    };
+    http.open("GET", url, true);
+    http.send();
+}
+
+getPlayers();
+setInterval(getPlayers, 1000 * 30);
