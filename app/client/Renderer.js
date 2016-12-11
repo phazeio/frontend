@@ -26,8 +26,8 @@ function Renderer() {
 		window.addEventListener('resize', this.resize.bind(this));
 
 		this.canvas.addEventListener('mousemove', function(e) {
-		client.ws.send((new Packet.MouseMove(e)).build());
-	})
+			client.ws.send((new Packet.MouseMove(e)).build());
+		})
 
 		this.canvas.addEventListener('mousedown', (e) => {
 			// cancel text selection
@@ -45,6 +45,8 @@ function Renderer() {
 					break;
 			}
 		});
+
+		this.resize();
 	}
 
 	this.stop = function() {
@@ -54,8 +56,6 @@ function Renderer() {
 		clearInterval(this.renderInterval);
 		window.removeEventListener('resize', this.resize);
 	}
-
-	this.resize();
 }
 
 Renderer.prototype.getZoom = () => document.documentElement.clientWidth / window.outerWidth;
