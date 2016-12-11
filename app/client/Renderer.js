@@ -19,7 +19,8 @@ function Renderer() {
 		$('.wrapper').show();
 		$('#overlay').fadeOut('slow');
 
-		this.renderInterval = setInterval(this.mainLoop.bind(this), 1000 / 60);
+		window.requestNextAnimationFrame ? window.requestNextAnimationFrame(this.mainLoop.bind(this)) : setInterval(this.mainLoop.bind(this), 1e3/60);
+		// this.renderInterval = setInterval(this.mainLoop.bind(this), 1000 / 60);
 		// this.garbageInterval = setInterval(this.garbageLoop.bind(this), 1000 / 30);
 
 		window.addEventListener('resize', this.resize.bind(this));
@@ -53,6 +54,8 @@ function Renderer() {
 		clearInterval(this.renderInterval);
 		window.removeEventListener('resize', this.resize);
 	}
+
+	this.resize();
 }
 
 Renderer.prototype.getZoom = () => document.documentElement.clientWidth / window.outerWidth;
@@ -180,14 +183,23 @@ Renderer.prototype.updateZoom = function() {
 }
 
 Renderer.prototype.resize = function() {
-	this.updateZoom();
+	var iw = window.innerWidth
+		, ih = window.innerHeight
+		, dt = window.devicePixelRatio
+		, nw = iw * dt
+		, nh = ih * dt;
+	
+	this.canvas.width = nw;
+	this.canvas.height = nh;
 
-	ctx.canvas.height = window.innerHeight;
-	ctx.canvas.width = window.innerWidth;
+	// this.updateZoom();
+
+	// ctx.canvas.height = window.innerHeight;
+	// ctx.canvas.width = window.innerWidth;
 
 
-	var zoom = document.documentElement.clientWidth / window.outerWidth;
+	// var zoom = document.documentElement.clientWidth / window.outerWidth;
 
-	console.log(zoom)
-	ctx.scale(zoom, zoom);
+	// console.log(zoom)
+	// ctx.scale(zoom, zoom);
 }
